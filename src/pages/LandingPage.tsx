@@ -3,6 +3,7 @@ import Hero from "../components/Hero";
 import Trusted from "../components/Trusted";
 import Features from "../components/Features";
 import AiDemo from "../components/AiDemo";
+import Pricing from "../components/Pricing";
 
 function LandingPage() {
   return (
@@ -12,6 +13,7 @@ function LandingPage() {
       <Trusted />
       <Features />
       <AiDemo />
+      <Pricing />
     </main>
   );
 }
