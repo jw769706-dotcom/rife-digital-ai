@@ -2,6 +2,7 @@ import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Trusted from "../components/Trusted";
 import Features from "../components/Features";
+import AiDemo from "../components/AiDemo";
 
 function LandingPage() {
   return (
@@ -10,6 +11,7 @@ function LandingPage() {
       <Hero />
       <Trusted />
       <Features />
+      <AiDemo />
     </main>
   );
 }
