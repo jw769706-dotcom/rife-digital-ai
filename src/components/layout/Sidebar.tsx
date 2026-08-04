@@ -9,7 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import { newChat } from "../../lib/storage";
 
@@ -70,6 +70,8 @@ const menus = [
 ];
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+
   function handleNewProject() {
     newChat(welcomeMessage);
     window.location.reload();
@@ -77,27 +79,20 @@ export default function Sidebar() {
 
   return (
     <aside className="flex h-screen w-[300px] flex-col border-r border-white/10 bg-[#090909]">
-
       <div className="border-b border-white/10 px-7 py-8">
-
         <h1 className="text-[38px] font-black leading-none text-white">
           Rife
           <span className="text-yellow-400">Digital</span>
-
           <br />
-
           <span className="text-yellow-400">AI</span>
-
         </h1>
 
         <p className="mt-3 text-sm text-gray-500">
           Build Your Digital Business with AI
         </p>
-
       </div>
 
       <div className="p-5">
-
         <button
           onClick={handleNewProject}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-yellow-400 py-4 font-bold text-black"
@@ -105,11 +100,9 @@ export default function Sidebar() {
           <Sparkles size={18} />
           New Project
         </button>
-
       </div>
 
       <div className="flex-1 px-4">
-
         {menus.map((menu) => {
           const Icon = menu.icon;
 
@@ -130,13 +123,10 @@ export default function Sidebar() {
             </NavLink>
           );
         })}
-
       </div>
 
       <div className="border-t border-white/10 p-5">
-
         <div className="rounded-3xl border border-yellow-400/20 bg-gradient-to-br from-yellow-400/10 to-transparent p-6">
-
           <p className="text-sm font-bold text-yellow-400">
             BASIC
           </p>
@@ -149,14 +139,14 @@ export default function Sidebar() {
             Mulai dari Rp49.000 / bulan
           </p>
 
-          <button className="mt-5 w-full rounded-2xl bg-yellow-400 py-3 font-bold text-black hover:bg-yellow-300">
+          <button
+            onClick={() => navigate("/pricing")}
+            className="mt-5 w-full rounded-2xl bg-yellow-400 py-3 font-bold text-black hover:bg-yellow-300"
+          >
             Upgrade Sekarang
           </button>
-
         </div>
-
       </div>
-
     </aside>
   );
 }
