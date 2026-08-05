@@ -2,6 +2,11 @@ import { useState } from "react";
 
 import { generateText } from "../../services/ai";
 
+import {
+  canGenerate,
+  increaseUsage,
+} from "../../lib/subscriptions";
+
 import GeneratorButton from "./GeneratorButton";
 import GeneratorResult from "./GeneratorResult";
 
@@ -43,13 +48,27 @@ export default function GeneratorForm({
     setLoading(true);
 
     try {
+      const allowed = await canGenerate();
+
+      if (!allowed) {
+        setResult(
+          "🚫 Limit gratis kamu hari ini sudah habis.\n\nUpgrade ke BASIC Rp49.000/bulan untuk generate AI tanpa batas."
+        );
+
+        return;
+      }
+
       const ai = await generateText({
         systemPrompt,
         userPrompt: prompt(values),
       });
 
+      await increaseUsage();
+
       setResult(ai);
-    } catch {
+    } catch (err) {
+      console.error(err);
+
       setResult("Terjadi kesalahan.");
     } finally {
       setLoading(false);
