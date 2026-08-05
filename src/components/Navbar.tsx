@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -24,8 +25,8 @@ export default function Navbar() {
             : "border-transparent bg-transparent"
         }`}
       >
-        <a
-          href="#"
+        <Link
+          to="/"
           className="flex h-16 items-center gap-3 font-black text-white"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500 text-lg font-black text-black shadow-lg shadow-yellow-500/30">
@@ -34,40 +35,54 @@ export default function Navbar() {
 
           <div className="leading-tight">
             <p className="text-lg">
-              Rife{" "}
-              <span className="text-yellow-400">
-                Digital AI
-              </span>
+              Rife <span className="text-yellow-400">Digital AI</span>
             </p>
 
             <p className="text-[11px] font-medium text-gray-400">
               Build Faster with AI
             </p>
           </div>
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {["Features", "Pricing", "FAQ"].map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              className="relative text-sm font-medium text-gray-300 transition hover:text-white"
-            >
-              {item}
+          <a
+            href="#features"
+            className="text-sm font-medium text-gray-300 hover:text-white"
+          >
+            Features
+          </a>
 
-              <span className="absolute -bottom-2 left-0 h-[2px] w-0 bg-yellow-400 transition-all duration-300 hover:w-full" />
-            </a>
-          ))}
+          <a
+            href="#pricing"
+            className="text-sm font-medium text-gray-300 hover:text-white"
+          >
+            Pricing
+          </a>
+
+          <a
+            href="#faq"
+            className="text-sm font-medium text-gray-300 hover:text-white"
+          >
+            FAQ
+          </a>
         </nav>
 
         <div className="flex items-center gap-3">
-          <button className="hidden rounded-xl border border-white/10 px-5 py-2.5 font-medium text-white transition hover:border-yellow-400 hover:bg-white/5 md:block">
-            Masuk
-          </button>
 
-          <button className="rounded-xl bg-yellow-500 px-6 py-2.5 font-bold text-black shadow-lg shadow-yellow-500/30 transition hover:scale-105 hover:bg-yellow-400">
+          <Link
+            to="/login"
+            className="hidden rounded-xl border border-white/10 px-5 py-2.5 font-medium text-white transition hover:border-yellow-400 hover:bg-white/5 md:block"
+          >
+            Masuk
+          </Link>
+
+          <Link
+            to="/login"
+            className="rounded-xl bg-yellow-500 px-6 py-2.5 font-bold text-black shadow-lg shadow-yellow-500/30 transition hover:scale-105 hover:bg-yellow-400"
+          >
             Mulai Gratis
-          </button>
+          </Link>
+
         </div>
       </div>
     </header>
