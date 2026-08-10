@@ -48,13 +48,16 @@ export default function GeneratorForm({
     setLoading(true);
 
     try {
+      console.log("========== GENERATE ==========");
+
       const allowed = await canGenerate();
+
+      console.log("ALLOWED =", allowed);
 
       if (!allowed) {
         setResult(
-          "🚫 Limit gratis kamu hari ini sudah habis.\n\nUpgrade ke BASIC Rp49.000/bulan untuk generate AI tanpa batas."
+          "🚫 Limit gratis kamu hari ini sudah habis.\n\nUpgrade ke BASIC Rp49.000/bulan untuk melanjutkan."
         );
-
         return;
       }
 
@@ -63,12 +66,15 @@ export default function GeneratorForm({
         userPrompt: prompt(values),
       });
 
+      console.log("AI BERHASIL");
+
       await increaseUsage();
+
+      console.log("increaseUsage BERHASIL");
 
       setResult(ai);
     } catch (err) {
-      console.error(err);
-
+      console.error("ERROR :", err);
       setResult("Terjadi kesalahan.");
     } finally {
       setLoading(false);

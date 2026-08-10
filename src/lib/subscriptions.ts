@@ -11,11 +11,14 @@ export async function getPlan(): Promise<Plan> {
 
   if (!user) return "FREE";
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("subscriptions")
     .select("plan")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
+
+  console.log("PLAN DATA:", data);
+  console.log("PLAN ERROR:", error);
 
   return (data?.plan as Plan) ?? "FREE";
 }
@@ -44,12 +47,15 @@ export async function getTodayUsage() {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("ai_usage")
     .select("count")
     .eq("user_id", user.id)
     .eq("date", today)
     .maybeSingle();
+
+  console.log("USAGE DATA:", data);
+  console.log("USAGE ERROR:", error);
 
   return data?.count ?? 0;
 }
@@ -57,11 +63,17 @@ export async function getTodayUsage() {
 export async function canGenerate() {
   const plan = await getPlan();
 
+  console.log("PLAN =", plan);
+
   if (plan === "BASIC" || plan === "PRO") {
+    console.log("UNLIMITED");
     return true;
   }
 
   const used = await getTodayUsage();
+
+  console.log("USED =", used);
+  console.log("LIMIT =", FREE_DAILY_LIMIT);
 
   return used < FREE_DAILY_LIMIT;
 }
