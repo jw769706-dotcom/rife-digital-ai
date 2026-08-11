@@ -156,9 +156,9 @@ export default function PricingCard() {
                 <div className="mt-7">
                   <h2 className="text-4xl font-black tracking-[-0.03em] text-yellow-400 sm:text-5xl">
                     {plan.id === "BASIC"
-                      ? "Rp99K"
+                      ? "Rp49K"
                       : plan.id === "PRO"
-                      ? "Rp199K"
+                      ? "Rp99K"
                       : plan.price}
                   </h2>
 
