@@ -1,68 +1,95 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 
 import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
 
-type Props = {
-  title: string;
-  subtitle?: string;
+interface DashboardLayoutProps {
   children: ReactNode;
-};
+  title?: string;
+  subtitle?: string;
+}
 
 export default function DashboardLayout({
-  title,
-  subtitle,
   children,
-}: Props) {
+  title = "Dashboard",
+  subtitle = "Selamat datang kembali 👋",
+}: DashboardLayoutProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-[#090909] text-white">
-      {/* SIDEBAR UTAMA */}
-      <Sidebar />
+    <div className="min-h-screen overflow-x-hidden bg-[#070707] text-white">
+      {/* =========================
+          BACKGROUND
+      ========================== */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        {/* Gold glow */}
+        <div className="absolute left-[45%] top-[-300px] h-[600px] w-[600px] rounded-full bg-yellow-400/[0.035] blur-[160px]" />
 
-      {/* MAIN CONTENT */}
-      <main className="min-w-0 flex-1">
-        {/* HEADER */}
-        <header className="border-b border-white/10 bg-[#090909]">
-          <div className="flex items-center justify-between px-8 py-6">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-yellow-400">
-                RIFE DIGITAL AI
-              </p>
+        {/* Subtle grid */}
+        <div
+          className="absolute inset-0 opacity-[0.018]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px)",
+            backgroundSize: "70px 70px",
+          }}
+        />
+      </div>
 
-              <h1 className="mt-1 text-3xl font-black text-white">
-                {title}
-              </h1>
+      {/* =========================
+          MOBILE OVERLAY
+      ========================== */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Tutup menu"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/75 backdrop-blur-[2px] lg:hidden"
+        />
+      )}
 
-              {subtitle && (
-                <p className="mt-2 max-w-3xl text-sm text-gray-500">
-                  {subtitle}
-                </p>
-              )}
-            </div>
+      {/* =========================
+          SIDEBAR
+      ========================== */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50
+          w-[270px]
+          transform
+          transition-transform
+          duration-300
+          ease-out
+          lg:w-[280px]
+          lg:translate-x-0
+          ${
+            sidebarOpen
+              ? "translate-x-0"
+              : "-translate-x-full"
+          }
+        `}
+      >
+        <Sidebar />
+      </aside>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden rounded-xl border border-white/10 bg-[#111111] px-4 py-2 text-xs text-gray-400 md:block">
-                AI Workspace
-              </div>
+      {/* =========================
+          MAIN AREA
+      ========================== */}
+      <div className="min-h-screen lg:pl-[280px]">
+        {/* TOPBAR */}
+        <Topbar
+          title={title}
+          subtitle={subtitle}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
 
-              <button
-                onClick={() => {
-                  window.location.href = "/pricing";
-                }}
-                className="rounded-xl bg-yellow-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-yellow-300"
-              >
-                Upgrade
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* PAGE CONTENT */}
-        <div className="p-8">
-          <div className="mx-auto w-full max-w-[1400px]">
+        {/* CONTENT AREA */}
+        <main className="relative w-full">
+          <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 xl:px-10">
             {children}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

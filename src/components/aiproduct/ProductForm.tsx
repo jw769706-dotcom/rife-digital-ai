@@ -1,24 +1,20 @@
 import { useState } from "react";
-import { DollarSign, Package, Target, Wand2 } from "lucide-react";
+import { DollarSign, Package, Target, Wand2, Sparkles, Lightbulb } from "lucide-react";
+
 import { supabase } from "../../lib/supabase";
 import { generateText } from "../../services/ai";
-import {
-  createHistoryItem,
-  saveHistory,
-} from "../../lib/history";
+import { createHistoryItem, saveHistory } from "../../lib/history";
 import type { ProductAIResult } from "../../pages/AIProduct";
 
 type ProductFormProps = {
   onResult: (result: ProductAIResult) => void;
 };
 
-export default function ProductForm({
-  onResult,
-}: ProductFormProps) {
+export default function ProductForm({ onResult }: ProductFormProps) {
   const [category, setCategory] = useState("Ebook");
   const [targetMarket, setTargetMarket] = useState("");
   const [skills, setSkills] = useState("");
-  const [price, setPrice] = useState("Rp29.000");
+  const [price, setPrice] = useState("Rp49.000");
   const [loading, setLoading] = useState(false);
 
   async function handleGenerate() {
@@ -241,9 +237,7 @@ Setiap hari harus memiliki tugas yang jelas dan bisa langsung dikerjakan.
         throw new Error("User belum login.");
       }
 
-      const numericPrice = Number(
-        price.replace(/\D/g, "")
-      );
+      const numericPrice = Number(price.replace(/\D/g, ""));
 
       const { error: saveError } = await supabase
         .from("ai_projects")
@@ -258,19 +252,9 @@ Setiap hari harus memiliki tugas yang jelas dan bisa langsung dikerjakan.
         });
 
       if (saveError) {
-        console.error(
-          "Gagal menyimpan project:",
-          saveError
-        );
-
+        console.error("Gagal menyimpan project:", saveError);
         throw saveError;
       }
-
-      /*
-       * ==========================================
-       * SIMPAN KE HISTORY
-       * ==========================================
-       */
 
       const historyPrompt = `
 Buatkan konsep produk digital sekaligus panduan lengkap.
@@ -281,35 +265,18 @@ Skill yang Dimiliki: ${skills}
 Harga yang Diinginkan: ${price}
 `;
 
-      const historyResult = JSON.stringify(
-        parsed,
-        null,
-        2
-      );
+      const historyResult = JSON.stringify(parsed, null, 2);
 
       saveHistory(
-        createHistoryItem(
-          "AI Product",
-          historyPrompt,
-          historyResult
-        )
+        createHistoryItem("AI Product", historyPrompt, historyResult)
       );
 
-      console.log(
-        "History AI Product berhasil disimpan."
-      );
-
-      console.log(
-        "Project berhasil disimpan:",
-        parsed
-      );
+      console.log("History AI Product berhasil disimpan.");
+      console.log("Project berhasil disimpan:", parsed);
 
       onResult(parsed);
     } catch (error) {
-      console.error(
-        "GENERATE PRODUCT ERROR:",
-        error
-      );
+      console.error("GENERATE PRODUCT ERROR:", error);
 
       alert(
         error instanceof Error
@@ -322,37 +289,69 @@ Harga yang Diinginkan: ${price}
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400 text-black">
-          <Package size={24} />
+    <div className="w-full min-w-0">
+      {/* FORM HEADER */}
+      <div className="flex min-w-0 items-start gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/10 sm:h-14 sm:w-14">
+          <Package size={24} strokeWidth={2.5} />
         </div>
 
-        <div>
-          <h2 className="text-2xl font-bold text-white">
-            Generate Produk
-          </h2>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-black text-white sm:text-2xl">
+              Kita buat produkmu
+            </h2>
 
-          <p className="text-sm text-gray-500">
-            Lengkapi informasi produk yang ingin dibuat.
+            <span className="rounded-full bg-yellow-400/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-yellow-400">
+              Pemula Friendly
+            </span>
+          </div>
+
+          <p className="mt-1.5 max-w-2xl text-xs leading-5 text-gray-500 sm:text-sm">
+            Kamu nggak perlu tahu istilah AI. Cukup jawab beberapa pertanyaan
+            sederhana, lalu Rife yang membantu menyusun konsepnya.
           </p>
         </div>
       </div>
 
-      <div className="mt-8 space-y-6">
+      {/* BEGINNER TIP */}
+      <div className="mt-6 flex min-w-0 items-start gap-3 rounded-2xl border border-yellow-400/15 bg-yellow-400/[0.05] p-4">
+        <Lightbulb className="mt-0.5 shrink-0 text-yellow-400" size={18} />
 
-        {/* Kategori Produk */}
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-white sm:text-sm">
+            Nggak tahu mau bikin apa?
+          </p>
+
+          <p className="mt-1 text-[11px] leading-5 text-gray-500 sm:text-xs">
+            Tenang. Pilih kategori yang menurutmu paling cocok dan ceritakan
+            target pembelinya. Rife akan membantu menemukan arah produknya.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-7 space-y-5 sm:mt-8 sm:space-y-6">
+        {/* CATEGORY */}
         <div>
-          <label className="mb-2 block text-sm text-gray-400">
-            Kategori Produk
+          <label
+            htmlFor="product-category"
+            className="mb-2.5 flex items-center gap-2 text-sm font-bold text-white"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-[10px] text-yellow-400">
+              01
+            </span>
+            Kamu ingin membuat apa?
           </label>
 
+          <p className="mb-3 text-xs leading-5 text-gray-500">
+            Pilih jenis produk yang paling mendekati keinginanmu.
+          </p>
+
           <select
+            id="product-category"
             value={category}
-            onChange={(e) =>
-              setCategory(e.target.value)
-            }
-            className="w-full rounded-2xl border border-white/10 bg-[#202020] p-4 text-white outline-none"
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full min-w-0 rounded-2xl border border-white/10 bg-[#181818] px-4 py-4 text-sm font-medium text-white outline-none transition focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/10"
           >
             <option>Ebook</option>
             <option>Template Canva</option>
@@ -364,65 +363,94 @@ Harga yang Diinginkan: ${price}
           </select>
         </div>
 
-        {/* Target Pasar */}
+        {/* TARGET MARKET */}
         <div>
-          <label className="mb-2 block text-sm text-gray-400">
-            Target Pasar
+          <label
+            htmlFor="target-market"
+            className="mb-2.5 flex items-center gap-2 text-sm font-bold text-white"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-[10px] text-yellow-400">
+              02
+            </span>
+            Siapa yang ingin kamu bantu?
           </label>
+
+          <p className="mb-3 text-xs leading-5 text-gray-500">
+            Tulis calon pembelinya dengan bahasa biasa. Contoh: guru SD,
+            mahasiswa, ibu rumah tangga, atau karyawan.
+          </p>
 
           <div className="relative">
             <Target
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              className="pointer-events-none absolute left-4 top-4 text-gray-600"
             />
 
             <input
+              id="target-market"
               value={targetMarket}
-              onChange={(e) =>
-                setTargetMarket(e.target.value)
-              }
-              placeholder="Contoh: Guru SD"
-              className="w-full rounded-2xl border border-white/10 bg-[#202020] py-4 pl-12 pr-4 text-white outline-none placeholder:text-gray-600"
+              onChange={(e) => setTargetMarket(e.target.value)}
+              placeholder="Contoh: Guru SD yang ingin membuat materi belajar"
+              className="w-full min-w-0 rounded-2xl border border-white/10 bg-[#181818] py-4 pl-12 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/10"
             />
           </div>
         </div>
 
-        {/* Skill */}
+        {/* SKILLS */}
         <div>
-          <label className="mb-2 block text-sm text-gray-400">
-            Skill yang Dimiliki
+          <label
+            htmlFor="product-skills"
+            className="mb-2.5 flex items-center gap-2 text-sm font-bold text-white"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-[10px] text-yellow-400">
+              03
+            </span>
+            Kamu bisa apa?
           </label>
 
+          <p className="mb-3 text-xs leading-5 text-gray-500">
+            Sebutkan kemampuan atau aplikasi yang pernah kamu gunakan. Kalau
+            masih pemula, kamu juga boleh menulis <b className="text-gray-400">"belum tahu"</b>.
+          </p>
+
           <input
+            id="product-skills"
             value={skills}
-            onChange={(e) =>
-              setSkills(e.target.value)
-            }
-            placeholder="Contoh: Canva, Excel, Notion"
-            className="w-full rounded-2xl border border-white/10 bg-[#202020] p-4 text-white outline-none placeholder:text-gray-600"
+            onChange={(e) => setSkills(e.target.value)}
+            placeholder="Contoh: Canva, Excel, menulis / belum tahu"
+            className="w-full min-w-0 rounded-2xl border border-white/10 bg-[#181818] p-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/10"
           />
         </div>
 
-        {/* Harga */}
+        {/* PRICE */}
         <div>
-          <label className="mb-2 block text-sm text-gray-400">
-            Harga Jual
+          <label
+            htmlFor="product-price"
+            className="mb-2.5 flex items-center gap-2 text-sm font-bold text-white"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-[10px] text-yellow-400">
+              04
+            </span>
+            Kira-kira mau dijual berapa?
           </label>
+
+          <p className="mb-3 text-xs leading-5 text-gray-500">
+            Belum yakin harganya? Pilih perkiraan saja. Rife tetap akan
+            memberikan rekomendasi harga berdasarkan produknya.
+          </p>
 
           <div className="relative">
             <DollarSign
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              className="pointer-events-none absolute left-4 top-4 text-gray-600"
             />
 
             <select
+              id="product-price"
               value={price}
-              onChange={(e) =>
-                setPrice(e.target.value)
-              }
-              className="w-full rounded-2xl border border-white/10 bg-[#202020] py-4 pl-12 pr-4 text-white outline-none"
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full min-w-0 rounded-2xl border border-white/10 bg-[#181818] py-4 pl-12 pr-4 text-sm font-medium text-white outline-none transition focus:border-yellow-400/50 focus:ring-2 focus:ring-yellow-400/10"
             >
-              <option>Rp29.000</option>
               <option>Rp49.000</option>
               <option>Rp79.000</option>
               <option>Rp99.000</option>
@@ -432,18 +460,42 @@ Harga yang Diinginkan: ${price}
           </div>
         </div>
 
-        {/* Generate Button */}
+        {/* SUMMARY */}
+        <div className="rounded-2xl border border-white/10 bg-[#0b0b0b] p-4 sm:p-5">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-yellow-400" />
+
+            <p className="text-xs font-black uppercase tracking-[0.15em] text-yellow-400">
+              Rife siap membantu
+            </p>
+          </div>
+
+          <p className="mt-2 text-sm leading-6 text-gray-400">
+            Dari jawabanmu, Rife akan menyusun{" "}
+            <span className="font-semibold text-gray-200">
+              ide produk, target pembeli, harga, strategi promosi, tutorial,
+              dan action plan 7 hari
+            </span>{" "}
+            yang bisa kamu ikuti.
+          </p>
+        </div>
+
+        {/* GENERATE */}
         <button
+          type="button"
           onClick={handleGenerate}
           disabled={loading}
-          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-yellow-400 py-4 text-lg font-bold text-black transition-all duration-300 hover:scale-[1.02] hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          className="flex w-full min-w-0 items-center justify-center gap-3 rounded-2xl bg-yellow-400 px-5 py-4 text-sm font-black text-black shadow-xl shadow-yellow-400/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-yellow-300 hover:shadow-yellow-400/20 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 sm:py-4.5 sm:text-base"
         >
-          <Wand2 size={20} />
+          <Wand2 size={20} strokeWidth={2.5} />
 
-          {loading
-            ? "⏳ AI Sedang Membuat..."
-            : "Generate Produk AI"}
+          {loading ? "⏳ Rife Sedang Menyusun..." : "🚀 Bantu Saya Membuat Produk"}
         </button>
+
+        <p className="text-center text-[10px] leading-5 text-gray-600 sm:text-xs">
+          Rife tidak menjamin keuntungan. Hasil yang diberikan adalah panduan
+          dan rekomendasi yang perlu kamu sesuaikan dengan kondisi nyata.
+        </p>
       </div>
     </div>
   );

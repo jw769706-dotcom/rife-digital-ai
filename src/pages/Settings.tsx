@@ -12,14 +12,17 @@ import {
 
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { getPlan, type Plan } from "../lib/subscriptions";
+import { supabase } from "../lib/supabase";
 
 export default function Settings() {
   const navigate = useNavigate();
 
   const [plan, setPlan] = useState<Plan>("FREE");
 
-  const [name, setName] = useState("Rifqi Putra");
-  const [email, setEmail] = useState("rifqiparfume@gmail.com");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
 
   const [notifications, setNotifications] = useState({
     ai: true,
@@ -28,24 +31,70 @@ export default function Settings() {
   });
 
   useEffect(() => {
-    async function loadPlan() {
+    async function loadSettings() {
       try {
+        setProfileLoading(true);
+
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+
+        if (error) {
+          console.error("Gagal mengambil akun:", error);
+          return;
+        }
+
+        if (user) {
+          setEmail(user.email ?? "");
+
+          const metadataName =
+            typeof user.user_metadata?.name === "string"
+              ? user.user_metadata.name.trim()
+              : "";
+
+          setName(metadataName);
+        }
+
         const currentPlan = await getPlan();
-
         console.log("CURRENT PLAN:", currentPlan);
-
         setPlan(currentPlan);
       } catch (error) {
-        console.error("Gagal mengambil paket:", error);
+        console.error("Gagal memuat Settings:", error);
         setPlan("FREE");
+      } finally {
+        setProfileLoading(false);
       }
     }
 
-    loadPlan();
+    loadSettings();
   }, []);
 
-  function handleSaveProfile() {
-    alert("Perubahan profil berhasil disimpan.");
+  async function handleSaveProfile() {
+    try {
+      setSavingProfile(true);
+
+      const cleanName = name.trim();
+
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          name: cleanName,
+        },
+      });
+
+      if (error) {
+        console.error("Gagal menyimpan profil:", error);
+        alert("Gagal menyimpan perubahan profil.");
+        return;
+      }
+
+      alert("Perubahan profil berhasil disimpan.");
+    } catch (error) {
+      console.error("SAVE PROFILE ERROR:", error);
+      alert("Terjadi kesalahan saat menyimpan profil.");
+    } finally {
+      setSavingProfile(false);
+    }
   }
 
   function handleChangePassword() {
@@ -72,402 +121,389 @@ export default function Settings() {
   }
 
   return (
-    <DashboardLayout
-      title="Settings"
-      subtitle="Atur akun, notifikasi, keamanan, dan langganan Rife Digital AI."
-    >
-      <div className="mx-auto max-w-6xl space-y-5">
+    <DashboardLayout>
+      <div className="mx-auto w-full max-w-6xl min-w-0 space-y-6">
+        {/* HERO */}
+        <section className="relative overflow-hidden rounded-[32px] border border-yellow-400/20 bg-gradient-to-br from-yellow-400/[0.12] via-[#111111] to-[#090909] p-6 sm:p-8 lg:p-10">
+          <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-yellow-400/10 blur-3xl" />
 
-        {/* ========================================= */}
-        {/* AKUN */}
-        {/* ========================================= */}
+          <div className="relative flex min-w-0 flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                <User size={13} />
+                Account Center
+              </div>
 
-        <section className="rounded-3xl border border-white/10 bg-[#111111] p-6">
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+                Pengaturan Akun
+              </h1>
 
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400">
-              <User size={22} />
-            </div>
-
-            <div>
-              <h2 className="text-xl font-black text-white">
-                Akun Saya
-              </h2>
-
-              <p className="text-sm text-gray-500">
-                Kelola informasi akun Rife Digital AI kamu.
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
+                Atur profil, notifikasi, keamanan, dan paket Rife Digital AI
+                kamu dari satu tempat.
               </p>
             </div>
-          </div>
 
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            <div className="w-full shrink-0 rounded-2xl border border-white/10 bg-black/20 p-4 sm:max-w-xs">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600">
+                Paket Saat Ini
+              </p>
 
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-gray-400">
-                Nama
-              </label>
+              <div className="mt-2 flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-2xl font-black text-white">
+                    {getPlanName()}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {getPlanPrice()} / bulan
+                  </p>
+                </div>
 
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nama kamu"
-                className="w-full rounded-xl border border-white/10 bg-[#181818] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400/50"
-              />
+                <button
+                  type="button"
+                  onClick={() => navigate("/pricing")}
+                  className="rounded-xl bg-yellow-400 px-4 py-2.5 text-xs font-black text-black transition hover:bg-yellow-300"
+                >
+                  Kelola
+                </button>
+              </div>
             </div>
-
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-gray-400">
-                Email
-              </label>
-
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email kamu"
-                className="w-full rounded-xl border border-white/10 bg-[#181818] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400/50"
-              />
-            </div>
-
           </div>
-
-          <button
-            type="button"
-            onClick={handleSaveProfile}
-            className="mt-5 flex items-center gap-2 rounded-xl bg-yellow-400 px-5 py-3 text-sm font-black text-black transition hover:bg-yellow-300"
-          >
-            <Save size={16} />
-            Simpan Perubahan
-          </button>
-
         </section>
 
+        {/* PROFILE */}
+        <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111111]">
+          <div className="border-b border-white/10 p-6 sm:p-7">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400">
+                <User size={22} />
+              </div>
 
-        {/* ========================================= */}
-        {/* NOTIFIKASI */}
-        {/* ========================================= */}
-
-        <section className="rounded-3xl border border-white/10 bg-[#111111] p-6">
-
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400">
-              <Bell size={22} />
-            </div>
-
-            <div>
-              <h2 className="text-xl font-black text-white">
-                Notifikasi
-              </h2>
-
-              <p className="text-sm text-gray-500">
-                Atur notifikasi yang ingin kamu terima.
-              </p>
-            </div>
-          </div>
-
-
-          <div className="mt-6 space-y-3">
-
-            <NotificationItem
-              title="Notifikasi hasil AI"
-              description="Beritahu saya ketika proses generate selesai."
-              checked={notifications.ai}
-              onChange={(checked) =>
-                setNotifications((prev) => ({
-                  ...prev,
-                  ai: checked,
-                }))
-              }
-            />
-
-            <NotificationItem
-              title="Tips & panduan"
-              description="Dapatkan tips untuk membantu mengembangkan bisnis digital."
-              checked={notifications.tips}
-              onChange={(checked) =>
-                setNotifications((prev) => ({
-                  ...prev,
-                  tips: checked,
-                }))
-              }
-            />
-
-            <NotificationItem
-              title="Update Rife Digital AI"
-              description="Dapatkan informasi mengenai fitur dan pembaruan terbaru."
-              checked={notifications.updates}
-              onChange={(checked) =>
-                setNotifications((prev) => ({
-                  ...prev,
-                  updates: checked,
-                }))
-              }
-            />
-
-          </div>
-
-        </section>
-
-
-        {/* ========================================= */}
-        {/* KEAMANAN */}
-        {/* ========================================= */}
-
-        <section className="rounded-3xl border border-white/10 bg-[#111111] p-6">
-
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400">
-              <Shield size={22} />
-            </div>
-
-            <div>
-              <h2 className="text-xl font-black text-white">
-                Keamanan
-              </h2>
-
-              <p className="text-sm text-gray-500">
-                Lindungi akun dan data kamu.
-              </p>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                  Profil
+                </p>
+                <h2 className="mt-1 text-xl font-black text-white">
+                  Informasi Akun
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Nama dan email yang digunakan untuk akun Rife kamu.
+                </p>
+              </div>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleChangePassword}
-            className="mt-6 flex items-center gap-2 rounded-xl border border-white/10 bg-[#181818] px-5 py-3 text-sm font-semibold text-white transition hover:border-yellow-400/40 hover:bg-[#202020]"
-          >
-            <Lock size={16} />
-            Ubah Password
-          </button>
+          <div className="p-6 sm:p-7">
+            <div className="grid min-w-0 gap-5 md:grid-cols-2">
+              <div className="min-w-0">
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Nama
+                </label>
 
-        </section>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={profileLoading || savingProfile}
+                  placeholder="Masukkan nama kamu"
+                  className="w-full min-w-0 rounded-2xl border border-white/10 bg-[#181818] px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400/50 disabled:cursor-not-allowed disabled:opacity-60"
+                />
 
+                {!profileLoading && !name.trim() && (
+                  <p className="mt-2 text-xs text-gray-600">
+                    Nama belum diatur. Kamu bisa mengisinya kapan saja.
+                  </p>
+                )}
+              </div>
 
-        {/* ========================================= */}
-        {/* LANGGANAN */}
-        {/* ========================================= */}
+              <div className="min-w-0">
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Email Akun
+                </label>
 
-        <section className="rounded-3xl border border-yellow-500/20 bg-gradient-to-br from-yellow-500/[0.08] to-transparent p-6">
+                <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-[#181818] px-4 py-3.5">
+                  <div className="h-2 w-2 shrink-0 rounded-full bg-green-400" />
 
-          <div className="flex items-center gap-4">
+                  <p className="min-w-0 truncate text-sm text-gray-300">
+                    {profileLoading ? "Memuat akun..." : email || "Email tidak tersedia"}
+                  </p>
+                </div>
 
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400">
-              <CreditCard size={22} />
-            </div>
-
-            <div>
-              <h2 className="text-xl font-black text-white">
-                Langganan
-              </h2>
-
-              <p className="text-sm text-gray-500">
-                Kelola paket Rife Digital AI kamu.
-              </p>
-            </div>
-
-          </div>
-
-
-          {/* CURRENT PLAN */}
-
-          <div className="mt-6 flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-[#111111] p-5 md:flex-row md:items-center">
-
-            <div>
-
-              <p className="text-xs font-bold text-yellow-400">
-                PAKET SAAT INI
-              </p>
-
-              <h3 className="mt-2 text-2xl font-black text-white">
-                {getPlanName()}
-              </h3>
-
-              <p className="mt-1 text-sm text-gray-400">
-                {getPlanPrice()} / bulan
-              </p>
-
+                <p className="mt-2 text-xs text-gray-600">
+                  Email diambil langsung dari akun yang sedang login.
+                </p>
+              </div>
             </div>
 
             <button
               type="button"
-              onClick={() => navigate("/pricing")}
-              className="rounded-xl bg-yellow-400 px-6 py-3 text-sm font-black text-black transition hover:bg-yellow-300"
+              onClick={handleSaveProfile}
+              disabled={profileLoading || savingProfile}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-yellow-400 px-5 py-3.5 text-sm font-black text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
-              Lihat Paket
+              <Save size={16} />
+              {savingProfile ? "Menyimpan..." : "Simpan Nama"}
             </button>
-
           </div>
+        </section>
 
-
-          {/* PLAN SUMMARY */}
-
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-
-            {/* BASIC */}
-
-            <div
-              className={`rounded-2xl p-5 ${
-                plan === "BASIC"
-                  ? "border border-yellow-400/30 bg-[#17140a]"
-                  : "border border-white/10 bg-[#171717]"
-              }`}
-            >
-
-              <div className="flex items-center justify-between">
-
-                <div>
-
-                  <p
-                    className={`text-xs font-bold ${
-                      plan === "BASIC"
-                        ? "text-yellow-400"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    BASIC
-                  </p>
-
-                  <h3 className="mt-1 text-xl font-black text-white">
-                    Rp49.000
-                  </h3>
-
-                  <p className="text-xs text-gray-500">
-                    / bulan
-                  </p>
-
-                </div>
-
-                {plan === "BASIC" && (
-                  <span className="rounded-full bg-yellow-400 px-3 py-1 text-[10px] font-black text-black">
-                    PAKET SAAT INI
-                  </span>
-                )}
-
+        {/* NOTIFICATIONS + SECURITY */}
+        <div className="grid min-w-0 gap-6 lg:grid-cols-2">
+          <section className="min-w-0 rounded-[28px] border border-white/10 bg-[#111111] p-6 sm:p-7">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400">
+                <Bell size={22} />
               </div>
 
-              <div className="mt-5 space-y-2 text-xs text-gray-300">
-
-                <p>✓ Generate AI tanpa batas</p>
-                <p>✓ Semua AI Tools</p>
-                <p>✓ Buat produk digital</p>
-                <p>✓ Content & Marketing AI</p>
-                <p>✓ Template premium</p>
-                <p>✓ History otomatis</p>
-                <p>✓ Cocok untuk pemula</p>
-
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                  Preferensi
+                </p>
+                <h2 className="mt-1 text-xl font-black text-white">
+                  Notifikasi
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Pilih informasi yang ingin kamu terima.
+                </p>
               </div>
-
             </div>
 
+            <div className="mt-6 space-y-3">
+              <NotificationItem
+                title="Hasil AI selesai"
+                description="Beritahu ketika proses generate selesai."
+                checked={notifications.ai}
+                onChange={(checked) =>
+                  setNotifications((prev) => ({ ...prev, ai: checked }))
+                }
+              />
 
-            {/* PRO */}
+              <NotificationItem
+                title="Tips untuk pemula"
+                description="Dapatkan panduan untuk mengembangkan bisnis digital."
+                checked={notifications.tips}
+                onChange={(checked) =>
+                  setNotifications((prev) => ({ ...prev, tips: checked }))
+                }
+              />
 
-            <div
-              className={`rounded-2xl p-5 ${
-                plan === "PRO"
-                  ? "border border-yellow-400/30 bg-[#17140a]"
-                  : "border border-white/10 bg-[#171717]"
-              }`}
-            >
+              <NotificationItem
+                title="Update Rife"
+                description="Informasi fitur dan pembaruan terbaru."
+                checked={notifications.updates}
+                onChange={(checked) =>
+                  setNotifications((prev) => ({ ...prev, updates: checked }))
+                }
+              />
+            </div>
+          </section>
 
-              <div className="flex items-center justify-between">
-
-                <div>
-
-                  <p
-                    className={`text-xs font-bold ${
-                      plan === "PRO"
-                        ? "text-yellow-400"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    PRO
-                  </p>
-
-                  <h3 className="mt-1 text-xl font-black text-white">
-                    Rp99.000
-                  </h3>
-
-                  <p className="text-xs text-gray-500">
-                    / bulan
-                  </p>
-
-                </div>
-
-                {plan === "PRO" && (
-                  <span className="rounded-full bg-yellow-400 px-3 py-1 text-[10px] font-black text-black">
-                    PAKET SAAT INI
-                  </span>
-                )}
-
+          <section className="min-w-0 rounded-[28px] border border-white/10 bg-[#111111] p-6 sm:p-7">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400">
+                <Shield size={22} />
               </div>
 
-              <div className="mt-5 space-y-2 text-xs text-gray-300">
-
-                <p>✓ Semua fitur Basic</p>
-                <p>✓ Prioritas Generate</p>
-                <p>✓ Template premium lebih lengkap</p>
-                <p>✓ Akses fitur AI terbaru</p>
-                <p>✓ Prioritas bantuan</p>
-                <p>✓ Fitur bisnis lebih lengkap</p>
-
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                  Keamanan
+                </p>
+                <h2 className="mt-1 text-xl font-black text-white">
+                  Lindungi Akunmu
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Kelola keamanan akun Rife Digital AI.
+                </p>
               </div>
-
             </div>
 
+            <div className="mt-6 rounded-2xl border border-green-400/15 bg-green-400/[0.05] p-5">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-green-400">✓</span>
+
+                <div>
+                  <p className="text-sm font-bold text-white">
+                    Akun terlindungi
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-gray-500">
+                    Gunakan password yang kuat dan jangan bagikan informasi
+                    login kepada orang lain.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleChangePassword}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#181818] px-5 py-3.5 text-sm font-bold text-white transition hover:border-yellow-400/40 hover:bg-[#202020]"
+            >
+              <Lock size={16} />
+              Ubah Password
+            </button>
+          </section>
+        </div>
+
+        {/* SUBSCRIPTION */}
+        <section className="overflow-hidden rounded-[30px] border border-yellow-400/20 bg-gradient-to-br from-yellow-400/[0.10] via-[#111111] to-[#090909] p-6 sm:p-8">
+          <div className="flex min-w-0 flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black">
+                <CreditCard size={22} />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                  Membership
+                </p>
+                <h2 className="mt-1 text-2xl font-black text-white">
+                  Paket Rife Digital AI
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Pilih akses yang sesuai dengan kebutuhanmu.
+                </p>
+              </div>
+            </div>
+
+            <div className="shrink-0 rounded-2xl border border-yellow-400/20 bg-black/20 px-5 py-4">
+              <p className="text-[10px] font-black uppercase tracking-wider text-yellow-400">
+                Paket Saat Ini
+              </p>
+              <p className="mt-1 text-2xl font-black text-white">
+                {getPlanName()}
+              </p>
+              <p className="text-xs text-gray-500">
+                {getPlanPrice()} / bulan
+              </p>
+            </div>
           </div>
 
+          <div className="mt-7 grid min-w-0 gap-4 md:grid-cols-2">
+            <PlanCard
+              name="BASIC"
+              price="Rp49.000"
+              active={plan === "BASIC"}
+              features={[
+                "Generate AI tanpa batas",
+                "Semua AI Tools terbuka",
+                "Buat produk digital",
+                "Content & Marketing AI",
+                "History hasil generate",
+                "Cocok untuk pemula",
+              ]}
+            />
+
+            <PlanCard
+              name="PRO"
+              price="Rp99.000"
+              active={plan === "PRO"}
+              features={[
+                "Semua fitur BASIC",
+                "Generate lebih cepat",
+                "Prioritas bantuan",
+                "Template premium",
+                "Akses fitur AI terbaru",
+                "Konsultasi private 1:1",
+              ]}
+            />
+          </div>
 
           <button
             type="button"
             onClick={() => navigate("/pricing")}
-            className="mt-5 w-full rounded-xl bg-yellow-400 px-5 py-3 font-black text-black transition hover:bg-yellow-300"
+            className="mt-5 w-full rounded-2xl bg-yellow-400 px-5 py-4 text-sm font-black text-black transition hover:bg-yellow-300"
           >
-            Lihat Semua Paket
+            Lihat Detail & Upgrade Paket
           </button>
-
         </section>
 
-
-        {/* ========================================= */}
         {/* LOGOUT */}
-        {/* ========================================= */}
+        <section className="rounded-[28px] border border-red-500/10 bg-[#111111] p-6 sm:p-7">
+          <div className="flex min-w-0 flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-400">
+                Sesi Akun
+              </p>
 
-        <section className="rounded-3xl border border-red-500/10 bg-[#111111] p-6">
-
-          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
-
-            <div>
-
-              <h2 className="text-lg font-black text-white">
+              <h2 className="mt-2 text-lg font-black text-white">
                 Keluar dari Akun
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
-                Keluar dari akun Rife Digital AI di perangkat ini.
+              <p className="mt-1 text-sm leading-6 text-gray-500">
+                Gunakan tombol ini jika ingin keluar dari akun Rife Digital AI
+                di perangkat ini.
               </p>
-
             </div>
 
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-bold text-red-400 transition hover:bg-red-500/20"
+              className="flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-red-500/20 bg-red-500/10 px-5 py-3.5 text-sm font-bold text-red-400 transition hover:bg-red-500/20"
             >
               <LogOut size={16} />
-              Logout
+              Keluar
             </button>
-
           </div>
-
         </section>
-
       </div>
     </DashboardLayout>
   );
 }
 
+function PlanCard({
+  name,
+  price,
+  active,
+  features,
+}: {
+  name: string;
+  price: string;
+  active: boolean;
+  features: string[];
+}) {
+  return (
+    <div
+      className={`min-w-0 rounded-3xl border p-5 sm:p-6 ${
+        active
+          ? "border-yellow-400/40 bg-yellow-400/[0.07]"
+          : "border-white/10 bg-[#171717]"
+      }`}
+    >
+      <div className="flex min-w-0 items-start justify-between gap-4">
+        <div>
+          <p
+            className={`text-xs font-black uppercase tracking-wider ${
+              active ? "text-yellow-400" : "text-gray-500"
+            }`}
+          >
+            {name}
+          </p>
+
+          <p className="mt-2 text-2xl font-black text-white">{price}</p>
+          <p className="mt-1 text-xs text-gray-600">per bulan</p>
+        </div>
+
+        {active && (
+          <span className="shrink-0 rounded-full bg-yellow-400 px-3 py-1 text-[9px] font-black text-black">
+            PAKET SAAT INI
+          </span>
+        )}
+      </div>
+
+      <div className="mt-5 space-y-2.5">
+        {features.map((feature) => (
+          <div
+            key={feature}
+            className="flex min-w-0 items-start gap-2 text-xs leading-5 text-gray-300"
+          >
+            <span className="mt-0.5 shrink-0 text-yellow-400">✓</span>
+            <span className="min-w-0 break-words">{feature}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /* ================================================= */
 /* NOTIFICATION ITEM */
@@ -486,9 +522,7 @@ function NotificationItem({
 }) {
   return (
     <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-[#181818] p-4 transition hover:border-white/20">
-
       <div className="pr-5">
-
         <p className="text-sm font-bold text-white">
           {title}
         </p>
@@ -496,7 +530,6 @@ function NotificationItem({
         <p className="mt-1 text-xs text-gray-500">
           {description}
         </p>
-
       </div>
 
       <input
@@ -505,7 +538,6 @@ function NotificationItem({
         onChange={(e) => onChange(e.target.checked)}
         className="h-4 w-4 accent-yellow-400"
       />
-
     </label>
   );
 }

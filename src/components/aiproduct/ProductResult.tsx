@@ -553,326 +553,328 @@ Jika pengguna mengatakan tidak mengerti, jelaskan lebih sederhana.
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-black text-white">
-            Hasil AI
+    <div className="w-full min-w-0 overflow-hidden">
+      {/* RESULT HEADER */}
+      <div className="flex min-w-0 flex-col gap-5 border-b border-white/10 pb-7 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+            <span>✦</span>
+            Rife AI Result
+          </div>
+
+          <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+            Rencana Produkmu Sudah Jadi.
           </h2>
 
-          <p className="mt-2 text-gray-500">
-            Output lengkap yang dihasilkan AI
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+            Jangan bingung melihat banyak informasi. Ikuti bagian ini satu per
+            satu. Rife sudah membantu menyusun langkahnya untukmu.
           </p>
         </div>
 
-        <div className="rounded-full bg-green-500/20 px-5 py-2 text-sm font-bold text-green-400">
-          Generated
+        <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-green-400/20 bg-green-400/10 px-4 py-2 text-xs font-bold text-green-400">
+          <span className="h-2 w-2 rounded-full bg-green-400" />
+          Berhasil dibuat
         </div>
       </div>
 
-      <div className="mt-10 space-y-6">
+      <div className="mt-7 min-w-0 space-y-5">
+        {/* PRODUCT HERO */}
+        <section className="relative overflow-hidden rounded-[28px] border border-yellow-400/20 bg-gradient-to-br from-yellow-400/[0.12] via-[#151515] to-[#0d0d0d] p-6 sm:p-8">
+          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-yellow-400/10 blur-3xl" />
 
-        {/* Nama Produk */}
-        <div className="rounded-2xl border border-white/10 bg-[#1B1B1B] p-6">
-          <p className="text-sm text-gray-500">
-            Nama Produk
-          </p>
-
-          <h2 className="mt-3 text-3xl font-black text-yellow-400 lg:text-4xl">
-            {result.productName}
-          </h2>
-        </div>
-
-        {/* Target + Harga */}
-        <div className="grid gap-6 lg:grid-cols-2">
-
-          <div className="rounded-2xl border border-white/10 bg-[#1B1B1B] p-6">
-            <p className="text-sm text-gray-500">
-              Target Pasar
+          <div className="relative">
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-400">
+              PRODUK YANG DISARANKAN
             </p>
 
-            <div className="mt-3 space-y-2 text-gray-300">
-              {result.targetMarket.map(
-                (target, index) => (
-                  <p key={index}>
-                    • {target}
-                  </p>
-                )
-              )}
+            <h1 className="mt-3 break-words text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">
+              {result.productName}
+            </h1>
+
+            <div className="mt-6 grid min-w-0 gap-4 sm:grid-cols-2">
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-black/20 p-5">
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Target Pembeli
+                </p>
+
+                <div className="mt-3 flex min-w-0 flex-wrap gap-2">
+                  {result.targetMarket.map((target, index) => (
+                    <span
+                      key={index}
+                      className="max-w-full rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-gray-300"
+                    >
+                      {target}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="min-w-0 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-5">
+                <p className="text-xs font-bold uppercase tracking-wider text-yellow-400/70">
+                  Harga yang Bisa Dicoba
+                </p>
+
+                <p className="mt-2 break-words text-2xl font-black text-yellow-400 sm:text-3xl">
+                  {result.recommendedPrice}
+                </p>
+
+                <p className="mt-1 text-xs leading-5 text-gray-500">
+                  Ini rekomendasi awal dari AI, bukan jaminan harga pasti.
+                </p>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="rounded-2xl border border-white/10 bg-[#1B1B1B] p-6">
-            <p className="text-sm text-gray-500">
-              Harga Rekomendasi
+        {/* VALUE PROPOSITION */}
+        <section className="rounded-[24px] border border-white/10 bg-[#111111] p-6 sm:p-7">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-xl text-black">
+              💎
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                KENAPA ORANG MAU MEMBELI?
+              </p>
+
+              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">
+                Nilai utama produkmu
+              </h2>
+
+              <p className="mt-4 break-words text-sm leading-7 text-gray-300 sm:text-base">
+                {result.valueProposition}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* LAUNCH + PROFIT */}
+        <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
+          <section className="min-w-0 rounded-[24px] border border-white/10 bg-[#111111] p-6 sm:p-7">
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-xl text-black">
+                🚀
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                  LANGKAH MENJUAL
+                </p>
+
+                <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">
+                  Mulai dari sini
+                </h2>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {result.launchStrategy.map((strategy, index) => (
+                <div
+                  key={index}
+                  className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/10 bg-[#181818] p-4"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-xs font-black text-black">
+                    {index + 1}
+                  </div>
+
+                  <p className="min-w-0 break-words text-sm leading-6 text-gray-300">
+                    {strategy}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="min-w-0 rounded-[24px] border border-green-400/20 bg-gradient-to-br from-green-400/10 to-[#111111] p-6 sm:p-7">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-green-400">
+              SIMULASI
             </p>
 
-            <h2 className="mt-3 text-3xl font-black text-green-400">
-              {result.recommendedPrice}
+            <h2 className="mt-2 text-xl font-black text-white">
+              Potensi keuntungan
             </h2>
 
-            <p className="mt-2 text-sm text-gray-500">
-              Berdasarkan analisis AI
+            <p className="mt-6 break-words text-3xl font-black text-green-400 sm:text-4xl">
+              {result.estimatedProfit}
             </p>
-          </div>
 
+            <div className="mt-4 rounded-2xl border border-green-400/10 bg-black/20 p-4">
+              <p className="text-xs leading-5 text-gray-400">
+                Perkiraan berdasarkan 100 penjualan. Hasil nyata bisa berbeda
+                tergantung harga, biaya, kualitas produk, promosi, dan jumlah
+                pembeli.
+              </p>
+            </div>
+          </section>
         </div>
 
-        {/* Value Proposition */}
-        <div className="rounded-2xl border border-white/10 bg-[#1B1B1B] p-6">
-
-          <p className="text-sm text-gray-500">
-            Value Proposition
-          </p>
-
-          <p className="mt-4 leading-8 text-gray-300">
-            {result.valueProposition}
-          </p>
-
-        </div>
-
-        {/* Strategi Launching */}
-        <div className="rounded-2xl border border-white/10 bg-[#1B1B1B] p-6">
-
-          <p className="text-sm text-gray-500">
-            Strategi Launching
-          </p>
-
-          <div className="mt-4 space-y-3 text-gray-300">
-
-            {result.launchStrategy.map(
-              (strategy, index) => (
-                <p key={index}>
-                  ✅ {strategy}
-                </p>
-              )
-            )}
-
-          </div>
-        </div>
-
-        {/* Estimasi Profit */}
-        <div className="rounded-2xl border border-green-500/20 bg-green-500/10 p-6">
-
-          <p className="text-sm text-green-300">
-            Estimasi Profit
-          </p>
-
-          <h2 className="mt-3 text-4xl font-black text-green-400 lg:text-5xl">
-            {result.estimatedProfit}
-          </h2>
-
-          <p className="mt-3 text-gray-300">
-            Perkiraan berdasarkan 100 penjualan.
-          </p>
-
-        </div>
-
-        {/* Tutorial */}
-        <div className="rounded-3xl border border-yellow-400/20 bg-[#151515] p-6 lg:p-8">
-
-          <div className="flex items-start gap-4">
-
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-2xl">
+        {/* TUTORIAL */}
+        <section className="min-w-0 rounded-[28px] border border-yellow-400/20 bg-[#111111] p-6 sm:p-8">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-2xl text-black">
               📚
             </div>
 
-            <div>
-              <h2 className="text-2xl font-black text-white">
-                Tutorial Lengkap Untuk Pemula
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                PANDUAN PEMULA
+              </p>
+
+              <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                Ikuti Langkahnya Pelan-Pelan
               </h2>
 
-              <p className="mt-2 leading-7 text-gray-400">
-                Ikuti langkah berikut dari awal.
-                Tidak perlu memiliki pengalaman
-                sebelumnya.
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+                Kamu tidak harus langsung mengerti semuanya. Kerjakan satu
+                langkah, lalu lanjut ke langkah berikutnya.
               </p>
             </div>
-
           </div>
 
-          <div className="mt-8 space-y-6">
-
-            {result.tutorial.map(
-              (section, sectionIndex) => (
-                <div
-                  key={sectionIndex}
-                  className="rounded-2xl border border-white/10 bg-[#1B1B1B] p-6"
-                >
-
-                  <div className="flex items-start gap-3">
-
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-400 font-black text-black">
-                      {sectionIndex + 1}
-                    </div>
-
-                    <h3 className="pt-1 text-lg font-bold text-white">
-                      {section.title}
-                    </h3>
-
+          <div className="mt-7 space-y-4">
+            {result.tutorial.map((section, sectionIndex) => (
+              <div
+                key={sectionIndex}
+                className="min-w-0 rounded-2xl border border-white/10 bg-[#181818] p-5 sm:p-6"
+              >
+                <div className="flex min-w-0 items-start gap-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-400 text-sm font-black text-black">
+                    {sectionIndex + 1}
                   </div>
 
-                  <div className="mt-5 space-y-4">
-
-                    {section.steps.map(
-                      (step, stepIndex) => (
-                        <div
-                          key={stepIndex}
-                          className="flex gap-3"
-                        >
-
-                          <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-bold text-yellow-400">
-                            {stepIndex + 1}
-                          </div>
-
-                          <p className="leading-7 text-gray-300">
-                            {step}
-                          </p>
-
-                        </div>
-                      )
-                    )}
-
-                  </div>
+                  <h3 className="min-w-0 break-words pt-1 text-base font-black text-white sm:text-lg">
+                    {section.title}
+                  </h3>
                 </div>
-              )
-            )}
 
+                <div className="mt-5 space-y-3 pl-0 sm:pl-[52px]">
+                  {section.steps.map((step, stepIndex) => (
+                    <div
+                      key={stepIndex}
+                      className="flex min-w-0 items-start gap-3"
+                    >
+                      <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[11px] font-bold text-yellow-400">
+                        {stepIndex + 1}
+                      </span>
+
+                      <p className="min-w-0 break-words text-sm leading-7 text-gray-300">
+                        {step}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
 
-        {/* Action Plan */}
-        <div className="rounded-3xl border border-blue-400/20 bg-[#151515] p-6 lg:p-8">
-
-          <div className="flex items-start gap-4">
-
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-400/20 text-2xl">
-              🚀
+        {/* ACTION PLAN */}
+        <section className="min-w-0 rounded-[28px] border border-blue-400/20 bg-gradient-to-br from-blue-400/[0.08] to-[#111111] p-6 sm:p-8">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-400/15 text-2xl">
+              🗓️
             </div>
 
-            <div>
-              <h2 className="text-2xl font-black text-white">
-                Action Plan 7 Hari
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-300">
+                RENCANA 7 HARI
+              </p>
+
+              <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                Jangan Bingung Harus Ngapain Besok
               </h2>
 
-              <p className="mt-2 leading-7 text-gray-400">
-                Ikuti rencana ini satu per satu.
-                Tidak perlu menyelesaikan semuanya
-                dalam satu hari.
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Gunakan rencana ini sebagai checklist sederhana.
               </p>
             </div>
-
           </div>
 
-          <div className="mt-8 grid gap-4">
-
-            {result.actionPlan.map(
-              (item, index) => (
-                <div
-                  key={index}
-                  className="rounded-2xl border border-white/10 bg-[#1B1B1B] p-5"
-                >
-
-                  <div className="flex items-start gap-4">
-
-                    <div className="rounded-xl bg-blue-400/10 px-3 py-2 text-sm font-bold text-blue-300">
-                      {item.day}
-                    </div>
-
-                    <p className="leading-7 text-gray-300">
-                      {item.task}
-                    </p>
-
-                  </div>
-
+          <div className="mt-7 grid min-w-0 gap-3">
+            {result.actionPlan.map((item, index) => (
+              <div
+                key={index}
+                className="flex min-w-0 flex-col gap-4 rounded-2xl border border-white/10 bg-[#181818] p-5 sm:flex-row sm:items-start"
+              >
+                <div className="w-fit shrink-0 rounded-xl border border-blue-400/20 bg-blue-400/10 px-3 py-2 text-xs font-black text-blue-300">
+                  {item.day}
                 </div>
-              )
-            )}
 
+                <p className="min-w-0 break-words text-sm leading-7 text-gray-300">
+                  {item.task}
+                </p>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
 
-        {/* Tanya AI */}
-        <div className="rounded-3xl border border-yellow-400/20 bg-gradient-to-b from-yellow-400/10 to-[#151515] p-6 lg:p-8">
-
-          <div className="flex items-start gap-4">
-
+        {/* ASK AI */}
+        <section className="min-w-0 overflow-hidden rounded-[28px] border border-yellow-400/20 bg-gradient-to-br from-yellow-400/[0.10] via-[#151515] to-[#0f0f0f] p-6 sm:p-8">
+          <div className="flex min-w-0 items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-2xl text-black">
               💬
             </div>
 
-            <div>
-              <h2 className="text-2xl font-black text-white">
-                Tanya AI
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                MENTOR PRIBADI
+              </p>
+
+              <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                Masih Bingung? Tanya Rife.
               </h2>
 
-              <p className="mt-2 leading-7 text-gray-400">
-                Bingung dengan hasil di atas? Tanyakan
-                apa saja kepada AI. AI akan menjawab
-                berdasarkan project ini.
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400">
+                Tidak perlu malu bertanya. Ceritakan bagian yang tidak kamu
+                pahami dan minta AI menjelaskannya dengan bahasa paling
+                sederhana.
               </p>
             </div>
-
           </div>
 
-          {/* Chat Messages */}
           {chatMessages.length > 0 && (
-            <div className="mt-8 space-y-4">
-
-              {chatMessages.map(
-                (message, index) => (
+            <div className="mt-7 max-h-[520px] space-y-4 overflow-y-auto pr-1">
+              {chatMessages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
-                    key={index}
-                    className={`flex ${
+                    className={`max-w-[92%] min-w-0 rounded-2xl p-4 sm:max-w-[85%] sm:p-5 ${
                       message.role === "user"
-                        ? "justify-end"
-                        : "justify-start"
+                        ? "bg-yellow-400 text-black"
+                        : "border border-white/10 bg-[#181818] text-gray-300"
                     }`}
                   >
-
-                    <div
-                      className={`max-w-[90%] rounded-2xl p-5 ${
+                    <p
+                      className={`mb-2 text-[10px] font-black uppercase tracking-wider ${
                         message.role === "user"
-                          ? "bg-yellow-400 text-black"
-                          : "border border-white/10 bg-[#1B1B1B] text-gray-300"
+                          ? "text-black/60"
+                          : "text-yellow-400"
                       }`}
                     >
+                      {message.role === "user" ? "Kamu" : "Rife AI"}
+                    </p>
 
-                      <p
-                        className={`mb-2 text-xs font-bold uppercase tracking-wider ${
-                          message.role === "user"
-                            ? "text-black/60"
-                            : "text-yellow-400"
-                        }`}
-                      >
-                        {message.role === "user"
-                          ? "Kamu"
-                          : "Rife AI"}
-                      </p>
-
-                      <p className="whitespace-pre-wrap leading-7">
-                        {message.content}
-                      </p>
-
-                    </div>
-
+                    <p className="whitespace-pre-wrap break-words text-sm leading-7">
+                      {message.content}
+                    </p>
                   </div>
-                )
-              )}
-
+                </div>
+              ))}
             </div>
           )}
 
-          {/* Quick Questions */}
-          <div className="mt-6">
-
-            <p className="mb-3 text-sm font-semibold text-gray-400">
-              Contoh pertanyaan:
+          <div className="mt-7">
+            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
+              Coba salah satu:
             </p>
 
-            <div className="flex flex-wrap gap-2">
-
+            <div className="flex min-w-0 flex-wrap gap-2">
               {[
                 "Saya pemula, harus mulai dari mana?",
                 "Jelaskan langkah pertama lebih sederhana.",
@@ -882,110 +884,85 @@ Jika pengguna mengatakan tidak mengerti, jelaskan lebih sederhana.
                 <button
                   key={item}
                   type="button"
-                  onClick={() =>
-                    setQuestion(item)
-                  }
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-300 transition hover:border-yellow-400 hover:text-yellow-400"
+                  onClick={() => setQuestion(item)}
+                  className="max-w-full rounded-full border border-white/10 bg-white/5 px-4 py-2 text-left text-xs text-gray-300 transition hover:border-yellow-400/40 hover:text-yellow-400"
                 >
                   {item}
                 </button>
               ))}
-
             </div>
-
           </div>
 
-          {/* Input */}
-          <div className="mt-5">
-
+          <div className="mt-5 min-w-0">
             <textarea
               value={question}
-              onChange={(e) =>
-                setQuestion(e.target.value)
-              }
+              onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleQuestionKeyDown}
               disabled={chatLoading}
               rows={4}
               placeholder="Contoh: Kak, saya belum pernah membuat produk digital. Bisa ajari saya mulai dari langkah pertama?"
-              className="w-full resize-none rounded-2xl border border-white/10 bg-[#111111] p-5 text-white outline-none placeholder:text-gray-600 focus:border-yellow-400 disabled:opacity-60"
+              className="w-full min-w-0 resize-none rounded-2xl border border-white/10 bg-[#0d0d0d] p-5 text-sm leading-6 text-white outline-none placeholder:text-gray-600 focus:border-yellow-400/50 disabled:opacity-60"
             />
 
-            <div className="mt-3 flex items-center justify-between gap-4">
-
-              <p className="text-xs text-gray-600">
-                Tekan Enter untuk bertanya • Shift + Enter untuk baris baru
+            <div className="mt-3 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-[11px] leading-5 text-gray-600">
+                Enter untuk bertanya • Shift + Enter untuk baris baru
               </p>
 
               <button
                 type="button"
                 onClick={handleAskAI}
-                disabled={
-                  chatLoading ||
-                  !question.trim()
-                }
-                className="rounded-2xl bg-yellow-400 px-6 py-3 font-bold text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={chatLoading || !question.trim()}
+                className="w-full shrink-0 rounded-2xl bg-yellow-400 px-6 py-3.5 text-sm font-black text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
-                {chatLoading
-                  ? "⏳ AI Menjawab..."
-                  : "✨ Tanya AI"}
+                {chatLoading ? "⏳ AI sedang menjawab..." : "✨ Tanya Rife AI"}
               </button>
-
             </div>
-
           </div>
+        </section>
 
+        {/* BEGINNER REMINDER */}
+        <div className="flex min-w-0 items-start gap-4 rounded-2xl border border-yellow-400/15 bg-yellow-400/[0.05] p-5 sm:p-6">
+          <div className="shrink-0 text-2xl">💡</div>
+
+          <div className="min-w-0">
+            <h3 className="font-black text-yellow-400">
+              Tidak perlu langsung jago.
+            </h3>
+
+            <p className="mt-2 break-words text-sm leading-7 text-gray-400">
+              Fokus kerjakan satu langkah dulu. Kalau tidak paham, gunakan
+              tombol <span className="font-bold text-yellow-400">Tanya Rife AI</span>
+              dan minta penjelasan yang lebih sederhana.
+            </p>
+          </div>
         </div>
 
-        {/* Beginner Reminder */}
-        <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-6">
-
-          <h3 className="text-lg font-bold text-yellow-400">
-            💡 Masih pemula?
-          </h3>
-
-          <p className="mt-2 leading-7 text-gray-300">
-            Tidak perlu langsung sempurna. Ikuti
-            tutorial di atas satu langkah demi satu
-            langkah. Kalau kamu mengalami kesulitan,
-            gunakan fitur Tanya AI di atas dan minta
-            AI menjelaskan dengan bahasa yang lebih
-            sederhana.
-          </p>
-
-        </div>
-
-        {/* Action */}
-        <div className="grid gap-4 lg:grid-cols-2">
-
+        {/* ACTIONS */}
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
           <button
             onClick={handleCopy}
-            className={`rounded-2xl py-4 text-lg font-bold transition ${
+            className={`rounded-2xl py-4 text-sm font-black transition ${
               copied
                 ? "bg-green-500 text-white"
                 : "bg-yellow-400 text-black hover:bg-yellow-300"
             }`}
           >
-            {copied
-              ? "✓ Berhasil Disalin"
-              : "Copy Semua"}
+            {copied ? "✓ Berhasil Disalin" : "Copy Semua Hasil"}
           </button>
 
           <button
             onClick={handleExportPDF}
             disabled={exporting}
-            className={`rounded-2xl border border-white/10 py-4 font-semibold transition ${
+            className={`rounded-2xl border py-4 text-sm font-black transition ${
               exporting
-                ? "cursor-wait bg-yellow-400/20 text-yellow-400"
-                : "bg-[#202020] text-white hover:border-yellow-400"
+                ? "cursor-wait border-yellow-400/20 bg-yellow-400/10 text-yellow-400"
+                : "border-white/10 bg-[#181818] text-white hover:border-yellow-400/40 hover:bg-[#202020]"
             }`}
           >
-            {exporting
-              ? "Membuat PDF..."
-              : "Export PDF"}
+            {exporting ? "⏳ Membuat PDF..." : "↓ Simpan sebagai PDF"}
           </button>
-
         </div>
-
       </div>
     </div>
   );

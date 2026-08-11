@@ -12,11 +12,13 @@ import Settings from "./pages/Settings";
 
 import Pricing from "./components/Pricing";
 
+import DashboardLayout from "./components/layout/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
     <Routes>
+
       {/* ================================= */}
       {/* LANDING */}
       {/* ================================= */}
@@ -127,14 +129,19 @@ export default function App() {
       />
 
       {/* ================================= */}
-      {/* PRICING */}
+      {/* PRICING / UPGRADE */}
       {/* ================================= */}
 
       <Route
         path="/pricing"
         element={
           <ProtectedRoute>
-            <Pricing />
+            <DashboardLayout
+              title="Upgrade"
+              subtitle="Pilih paket yang sesuai dengan kebutuhanmu."
+            >
+              <Pricing />
+            </DashboardLayout>
           </ProtectedRoute>
         }
       />
@@ -147,6 +154,7 @@ export default function App() {
         path="*"
         element={<Navigate to="/" replace />}
       />
+
     </Routes>
   );
 }

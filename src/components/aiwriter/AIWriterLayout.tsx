@@ -22,10 +22,6 @@ type AIWriterLayoutProps = {
   onNewProject?: () => void;
 };
 
-/* ================================= */
-/* MAIN NAVIGATION */
-/* ================================= */
-
 const menus = [
   {
     icon: LayoutDashboard,
@@ -54,10 +50,6 @@ const menus = [
   },
 ];
 
-/* ================================= */
-/* COMPONENT */
-/* ================================= */
-
 export default function AIWriterLayout({
   children,
   tool,
@@ -73,9 +65,10 @@ export default function AIWriterLayout({
   /* LOAD HISTORY */
   /* ================================= */
 
-  function loadHistory() {
+  async function loadHistory() {
     try {
-      setHistory(getHistory());
+      const data = await getHistory();
+      setHistory(data);
     } catch (error) {
       console.error("Gagal membaca history:", error);
       setHistory([]);
@@ -83,10 +76,28 @@ export default function AIWriterLayout({
   }
 
   useEffect(() => {
-    loadHistory();
+    let mounted = true;
+
+    async function initialLoad() {
+      try {
+        const data = await getHistory();
+
+        if (mounted) {
+          setHistory(data);
+        }
+      } catch (error) {
+        console.error("Gagal membaca history:", error);
+
+        if (mounted) {
+          setHistory([]);
+        }
+      }
+    }
+
+    initialLoad();
 
     function handleHistoryUpdated() {
-      loadHistory();
+      void loadHistory();
     }
 
     window.addEventListener(
@@ -95,6 +106,8 @@ export default function AIWriterLayout({
     );
 
     return () => {
+      mounted = false;
+
       window.removeEventListener(
         "rife-history-updated",
         handleHistoryUpdated
@@ -187,9 +200,7 @@ export default function AIWriterLayout({
 
         <aside className="sticky top-0 hidden h-screen w-[300px] shrink-0 flex-col border-r border-white/10 bg-[#090909] lg:flex">
 
-          {/* ================================= */}
           {/* BRAND */}
-          {/* ================================= */}
 
           <div className="border-b border-white/10 px-7 py-7">
             <button
@@ -210,9 +221,7 @@ export default function AIWriterLayout({
             </button>
           </div>
 
-          {/* ================================= */}
           {/* NEW PROJECT */}
-          {/* ================================= */}
 
           <div className="p-5">
             <button
@@ -225,12 +234,9 @@ export default function AIWriterLayout({
             </button>
           </div>
 
-          {/* ================================= */}
           {/* MAIN MENU */}
-          {/* ================================= */}
 
           <div className="px-4">
-
             {menus.map((menu) => {
               const Icon = menu.icon;
 
@@ -367,7 +373,6 @@ export default function AIWriterLayout({
           {/* ================================= */}
 
           <div className="border-t border-white/10 p-5">
-
             <div className="rounded-3xl border border-yellow-400/20 bg-gradient-to-br from-yellow-400/10 to-transparent p-5">
 
               <div className="flex items-center gap-2">

@@ -4,6 +4,10 @@ export type Plan = "FREE" | "BASIC" | "PRO";
 
 const FREE_DAILY_LIMIT = 5;
 
+/* ========================================= */
+/* GET PLAN */
+/* ========================================= */
+
 export async function getPlan(): Promise<Plan> {
   const {
     data: { user },
@@ -13,15 +17,52 @@ export async function getPlan(): Promise<Plan> {
 
   const { data, error } = await supabase
     .from("subscriptions")
-    .select("plan")
+    .select("plan, email")
     .eq("user_id", user.id)
     .maybeSingle();
 
   console.log("PLAN DATA:", data);
   console.log("PLAN ERROR:", error);
 
-  return (data?.plan as Plan) ?? "FREE";
+  /*
+   * Jika user belum mempunyai data subscription,
+   * otomatis buat sebagai FREE.
+   */
+  if (!data) {
+    const { error: insertError } = await supabase
+      .from("subscriptions")
+      .insert({
+        user_id: user.id,
+        email: user.email ?? null,
+        plan: "FREE",
+      });
+
+    console.log("CREATE FREE SUBSCRIPTION ERROR:", insertError);
+
+    return "FREE";
+  }
+
+  /*
+   * Jika subscription sudah ada tetapi email masih NULL,
+   * otomatis isi email dari akun Supabase Auth.
+   */
+  if (!data.email && user.email) {
+    const { error: updateError } = await supabase
+      .from("subscriptions")
+      .update({
+        email: user.email,
+      })
+      .eq("user_id", user.id);
+
+    console.log("SYNC EMAIL ERROR:", updateError);
+  }
+
+  return (data.plan as Plan) ?? "FREE";
 }
+
+/* ========================================= */
+/* SET PLAN */
+/* ========================================= */
 
 export async function setPlan(plan: Plan) {
   const {
@@ -30,13 +71,26 @@ export async function setPlan(plan: Plan) {
 
   if (!user) return;
 
-  await supabase
+  const { error } = await supabase
     .from("subscriptions")
-    .upsert({
-      user_id: user.id,
-      plan,
-    });
+    .upsert(
+      {
+        user_id: user.id,
+        email: user.email ?? null,
+        plan,
+      },
+      {
+        onConflict: "user_id",
+      }
+    );
+
+  console.log("SET PLAN:", plan);
+  console.log("SET PLAN ERROR:", error);
 }
+
+/* ========================================= */
+/* TODAY USAGE */
+/* ========================================= */
 
 export async function getTodayUsage() {
   const {
@@ -60,16 +114,26 @@ export async function getTodayUsage() {
   return data?.count ?? 0;
 }
 
+/* ========================================= */
+/* CAN GENERATE */
+/* ========================================= */
+
 export async function canGenerate() {
   const plan = await getPlan();
 
   console.log("PLAN =", plan);
 
+  /*
+   * BASIC dan PRO unlimited.
+   */
   if (plan === "BASIC" || plan === "PRO") {
     console.log("UNLIMITED");
     return true;
   }
 
+  /*
+   * FREE dibatasi 5 generate per hari.
+   */
   const used = await getTodayUsage();
 
   console.log("USED =", used);
@@ -78,9 +142,16 @@ export async function canGenerate() {
   return used < FREE_DAILY_LIMIT;
 }
 
+/* ========================================= */
+/* INCREASE USAGE */
+/* ========================================= */
+
 export async function increaseUsage() {
   const plan = await getPlan();
 
+  /*
+   * BASIC dan PRO tidak menggunakan limit FREE.
+   */
   if (plan !== "FREE") return;
 
   const {
@@ -98,6 +169,9 @@ export async function increaseUsage() {
     .eq("date", today)
     .maybeSingle();
 
+  /*
+   * Belum ada penggunaan hari ini.
+   */
   if (!data) {
     await supabase.from("ai_usage").insert({
       user_id: user.id,
@@ -108,6 +182,9 @@ export async function increaseUsage() {
     return;
   }
 
+  /*
+   * Sudah pernah generate hari ini.
+   */
   await supabase
     .from("ai_usage")
     .update({
@@ -116,9 +193,16 @@ export async function increaseUsage() {
     .eq("id", data.id);
 }
 
+/* ========================================= */
+/* REMAINING GENERATE */
+/* ========================================= */
+
 export async function getRemainingGenerate() {
   const plan = await getPlan();
 
+  /*
+   * BASIC dan PRO unlimited.
+   */
   if (plan !== "FREE") {
     return Infinity;
   }
@@ -128,9 +212,17 @@ export async function getRemainingGenerate() {
   return Math.max(FREE_DAILY_LIMIT - used, 0);
 }
 
+/* ========================================= */
+/* UPGRADE BASIC */
+/* ========================================= */
+
 export async function upgradeToBasic() {
   await setPlan("BASIC");
 }
+
+/* ========================================= */
+/* UPGRADE PRO */
+/* ========================================= */
 
 export async function upgradeToPro() {
   await setPlan("PRO");

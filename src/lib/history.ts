@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 export type HistoryItem = {
   id: string;
   tool: string;
@@ -6,14 +8,55 @@ export type HistoryItem = {
   createdAt: string;
 };
 
-const KEY = "rife-history";
+const LEGACY_KEY = "rife-history";
+
+async function getUserHistoryKey(): Promise<string | null> {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) {
+    console.error("Gagal mengambil user untuk history:", error);
+    return null;
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return `rife-history-${user.id}`;
+}
 
 /**
  * Mengambil semua history generate AI
+ * khusus untuk user yang sedang login.
  */
-export function getHistory(): HistoryItem[] {
+export async function getHistory(): Promise<HistoryItem[]> {
   try {
-    const data = localStorage.getItem(KEY);
+    const key = await getUserHistoryKey();
+
+    if (!key) {
+      return [];
+    }
+
+    let data = localStorage.getItem(key);
+
+    /*
+     * Migrasi history lama.
+     *
+     * Kalau user sebelumnya sudah punya history dari sistem lama,
+     * kita pindahkan history tersebut ke akun yang sedang login.
+     */
+    if (!data) {
+      const legacyData = localStorage.getItem(LEGACY_KEY);
+
+      if (legacyData) {
+        localStorage.setItem(key, legacyData);
+        localStorage.removeItem(LEGACY_KEY);
+        data = legacyData;
+      }
+    }
 
     if (!data) {
       return [];
@@ -33,11 +76,19 @@ export function getHistory(): HistoryItem[] {
 }
 
 /**
- * Menyimpan hasil generate AI ke history
+ * Menyimpan hasil generate AI
+ * khusus untuk user yang sedang login.
  */
-export function saveHistory(item: HistoryItem) {
+export async function saveHistory(item: HistoryItem): Promise<void> {
   try {
-    const history = getHistory();
+    const key = await getUserHistoryKey();
+
+    if (!key) {
+      console.warn("History tidak disimpan karena user belum login.");
+      return;
+    }
+
+    const history = await getHistory();
 
     const newItem: HistoryItem = {
       id: item.id || crypto.randomUUID(),
@@ -49,14 +100,16 @@ export function saveHistory(item: HistoryItem) {
 
     history.unshift(newItem);
 
-    localStorage.setItem(KEY, JSON.stringify(history));
+    localStorage.setItem(key, JSON.stringify(history));
+
+    window.dispatchEvent(new Event("rife-history-updated"));
   } catch (error) {
     console.error("Gagal menyimpan history:", error);
   }
 }
 
 /**
- * Helper untuk membuat history item baru
+ * Helper untuk membuat history item baru.
  */
 export function createHistoryItem(
   tool: string,
@@ -73,23 +126,43 @@ export function createHistoryItem(
 }
 
 /**
- * Menghapus satu history berdasarkan ID
+ * Menghapus satu history berdasarkan ID.
  */
-export function deleteHistory(id: string) {
+export async function deleteHistory(id: string): Promise<void> {
   try {
-    const history = getHistory();
+    const key = await getUserHistoryKey();
+
+    if (!key) {
+      return;
+    }
+
+    const history = await getHistory();
 
     const filtered = history.filter((item) => item.id !== id);
 
-    localStorage.setItem(KEY, JSON.stringify(filtered));
+    localStorage.setItem(key, JSON.stringify(filtered));
+
+    window.dispatchEvent(new Event("rife-history-updated"));
   } catch (error) {
     console.error("Gagal menghapus history:", error);
   }
 }
 
 /**
- * Menghapus seluruh history
+ * Menghapus seluruh history user yang sedang login.
  */
-export function clearHistory() {
-  localStorage.removeItem(KEY);
+export async function clearHistory(): Promise<void> {
+  try {
+    const key = await getUserHistoryKey();
+
+    if (!key) {
+      return;
+    }
+
+    localStorage.removeItem(key);
+
+    window.dispatchEvent(new Event("rife-history-updated"));
+  } catch (error) {
+    console.error("Gagal menghapus seluruh history:", error);
+  }
 }

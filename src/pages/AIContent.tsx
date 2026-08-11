@@ -909,20 +909,26 @@ export default function AIContent() {
     tools[0];
 
   useEffect(() => {
-    const refreshHistory = () => {
-      setHistory(getHistory());
-    };
+  async function refreshHistory() {
+    try {
+      const historyData = await getHistory();
+      setHistory(historyData);
+    } catch (error) {
+      console.error("Gagal membaca history:", error);
+      setHistory([]);
+    }
+  }
 
-    refreshHistory();
+  void refreshHistory();
 
-    window.addEventListener("rife-history-updated", refreshHistory);
-    window.addEventListener("storage", refreshHistory);
+  window.addEventListener("rife-history-updated", refreshHistory);
+  window.addEventListener("storage", refreshHistory);
 
-    return () => {
-      window.removeEventListener("rife-history-updated", refreshHistory);
-      window.removeEventListener("storage", refreshHistory);
-    };
-  }, []);
+  return () => {
+    window.removeEventListener("rife-history-updated", refreshHistory);
+    window.removeEventListener("storage", refreshHistory);
+  };
+}, []);
 
   function formatDate(dateString: string) {
     const date = new Date(dateString);
@@ -1110,583 +1116,546 @@ Jika pengguna terlihat bingung, jelaskan dengan bahasa yang sangat sederhana.
     setAnswer("");
   }
 
-  return (
+              return (
     <DashboardLayout
       title="Content Studio"
-      subtitle="Buat berbagai jenis konten dengan bantuan AI, bahkan jika kamu masih pemula."
+      subtitle="Buat konten tanpa perlu bingung harus mulai dari mana."
     >
-      <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="mx-auto w-full min-w-0 max-w-[1500px] space-y-6 overflow-x-hidden">
 
-        {/* HISTORY SIDEBAR */}
-        <aside className="h-fit rounded-3xl border border-white/10 bg-[#111111] p-5 xl:sticky xl:top-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
-                Workspace
+        {/* HERO / INTRO */}
+        <div className="relative overflow-hidden rounded-[28px] border border-yellow-400/15 bg-gradient-to-br from-yellow-400/[0.10] via-[#111111] to-[#0b0b0b] p-6 sm:p-8">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-yellow-400/[0.08] blur-3xl" />
+
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/20 bg-yellow-400/[0.07] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400 sm:text-xs">
+                <span>✨</span>
+                Content Studio
+              </div>
+
+              <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+                Bikin Konten.
+                <br />
+                <span className="text-yellow-400">AI yang Pikirkan Sisanya.</span>
+              </h1>
+
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
+                Nggak perlu jago marketing, nggak perlu pusing mencari ide.
+                Pilih kebutuhanmu, isi beberapa informasi sederhana, lalu biarkan
+                Rife membantu membuat kontennya.
               </p>
-              <h2 className="mt-1 text-xl font-black text-white">
-                History
-              </h2>
             </div>
-            <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-bold text-gray-400">
-              {history.length}
-            </span>
-          </div>
 
-          <div className="mt-5 rounded-2xl border border-white/10 bg-[#171717] px-4 py-3">
-            <p className="text-xs font-semibold text-gray-500">
-              Semua hasil generate Content Studio tersimpan di sini.
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
-              Hari Ini
-            </p>
-
-            {history.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center">
-                <div className="text-2xl">📂</div>
-                <p className="mt-2 text-sm font-semibold text-gray-400">
-                  Belum ada project
-                </p>
-                <p className="mt-1 text-xs leading-5 text-gray-600">
-                  Generate konten pertamamu dan hasilnya akan muncul di sini.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {history.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => openHistory(item)}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${
-                      selectedHistoryId === item.id
-                        ? "border-yellow-400/50 bg-yellow-500/10"
-                        : "border-white/5 bg-[#171717] hover:border-yellow-400/30 hover:bg-white/5"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-lg">
-                        {getHistoryIcon(item.tool)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-white">
-                          {item.tool.replace("Content Studio • ", "")}
-                        </p>
-                        <p className="mt-1 truncate text-xs text-gray-500">
-                          {getHistoryPreview(item.prompt)}
-                        </p>
-                        <p className="mt-2 text-[10px] text-gray-600">
-                          {formatDate(item.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </aside>
-
-        {/* MAIN CONTENT */}
-        <div className="min-w-0 space-y-8">
-
-        {/* TOOL SELECTOR */}
-        <div className="rounded-3xl border border-white/10 bg-[#111111] p-8">
-
-          <h1 className="text-3xl font-black text-white">
-            Content Studio
-          </h1>
-
-          <p className="mt-2 text-gray-400">
-            Pilih tools yang ingin kamu gunakan.
-          </p>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-
-            {tools.map((item) => {
-              const active =
-                selectedTool === item.id;
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() =>
-                    selectTool(item.id)
-                  }
-                  className={`rounded-2xl border p-5 text-left transition ${
-                    active
-                      ? "border-yellow-400 bg-yellow-500/10"
-                      : "border-white/10 bg-[#171717] hover:border-yellow-400/50"
-                  }`}
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:w-[360px]">
+              {[
+                ["01", "Pilih"],
+                ["02", "Isi"],
+                ["03", "Generate"],
+              ].map(([number, label]) => (
+                <div
+                  key={number}
+                  className="rounded-2xl border border-white/10 bg-black/20 p-3 text-center sm:p-4"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="text-[10px] font-black text-yellow-400 sm:text-xs">
+                    {number}
+                  </div>
+                  <p className="mt-1 text-xs font-bold text-white sm:text-sm">
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-                    <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${
-                        active
-                          ? "bg-yellow-500 text-black"
-                          : "bg-white/5"
+        {/* WORKSPACE */}
+        <div className="grid w-full min-w-0 max-w-full gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+
+          {/* HISTORY */}
+          <aside className="h-fit w-full min-w-0 max-w-full overflow-hidden rounded-[28px] border border-white/10 bg-[#0f0f0f] p-4 sm:p-5 xl:sticky xl:top-24">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                  Workspace
+                </p>
+                <h2 className="mt-1 text-xl font-black text-white">
+                  Hasil Sebelumnya
+                </h2>
+              </div>
+
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-400">
+                {history.length}
+              </span>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-yellow-400/10 bg-yellow-400/[0.04] p-4">
+              <p className="text-xs leading-5 text-gray-400">
+                Semua hasil Content Studio yang kamu buat akan tersimpan di sini,
+                jadi kamu nggak perlu membuatnya dari awal lagi.
+              </p>
+            </div>
+
+            <div className="mt-5">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-gray-600">
+                Riwayat Generate
+              </p>
+
+              {history.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-[#111111] p-5 text-center">
+                  <div className="text-2xl">📂</div>
+                  <p className="mt-2 text-sm font-bold text-gray-400">
+                    Belum ada hasil
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-gray-600">
+                    Generate konten pertamamu. Hasilnya akan otomatis muncul di sini.
+                  </p>
+                </div>
+              ) : (
+                <div className="max-h-[520px] space-y-2 overflow-y-auto pr-1">
+                  {history.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => openHistory(item)}
+                      className={`block w-full min-w-0 max-w-full overflow-hidden rounded-2xl border p-3 text-left transition ${
+                        selectedHistoryId === item.id
+                          ? "border-yellow-400/40 bg-yellow-500/10"
+                          : "border-white/5 bg-[#151515] hover:border-yellow-400/25 hover:bg-[#181818]"
                       }`}
                     >
-                      {item.icon}
-                    </div>
-
-                    <div>
-                      <h2 className="font-bold text-white">
-                        {item.title}
-                      </h2>
-
-                      <p className="mt-1 text-sm text-gray-500">
-                        {item.description}
-                      </p>
-                    </div>
-
-                  </div>
-                </button>
-              );
-            })}
-
-          </div>
-        </div>
-
-        {/* FORM */}
-        <div className="rounded-3xl border border-white/10 bg-[#111111] p-8">
-
-          <div className="flex items-center gap-4">
-
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-500 text-2xl">
-              {tool.icon}
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-black text-white">
-                {tool.title}
-              </h2>
-
-              <p className="mt-1 text-sm text-gray-400">
-                Isi beberapa informasi sederhana di
-                bawah ini. Selebihnya biarkan AI yang
-                mengerjakan.
-              </p>
-            </div>
-
-          </div>
-
-          {/* BEGINNER INFO */}
-          <div className="mt-6 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5">
-
-            <p className="text-sm font-bold text-yellow-400">
-              💡 Bingung harus isi apa?
-            </p>
-
-            <p className="mt-2 text-sm leading-6 text-gray-400">
-              Tenang. Isi sesuai kondisi kamu saja.
-              Tidak perlu menggunakan bahasa profesional.
-              Contohnya cukup seperti:
-              <span className="text-white">
-                {" "}“Saya jual ebook Canva untuk guru.”
-              </span>
-            </p>
-
-          </div>
-
-          {/* FIELDS */}
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-
-            {tool.fields.map((field) => {
-
-              if (field.type === "textarea") {
-                return (
-                  <div
-                    key={field.name}
-                    className="md:col-span-2"
-                  >
-                    <label className="mb-2 block text-sm font-semibold text-gray-300">
-                      {field.label}
-                    </label>
-
-                    <textarea
-                      value={
-                        values[field.name] ?? ""
-                      }
-                      onChange={(e) =>
-                        updateValue(
-                          field.name,
-                          e.target.value
-                        )
-                      }
-                      placeholder={
-                        field.placeholder
-                      }
-                      rows={5}
-                      className="w-full resize-none rounded-2xl border border-white/10 bg-[#171717] px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400"
-                    />
-                  </div>
-                );
-              }
-
-              if (field.type === "select") {
-                return (
-                  <div key={field.name}>
-
-                    <label className="mb-2 block text-sm font-semibold text-gray-300">
-                      {field.label}
-                    </label>
-
-                    <select
-                      value={
-                        values[field.name] ??
-                        field.options?.[0] ??
-                        ""
-                      }
-                      onChange={(e) =>
-                        updateValue(
-                          field.name,
-                          e.target.value
-                        )
-                      }
-                      className="w-full rounded-2xl border border-white/10 bg-[#171717] px-5 py-4 text-white outline-none focus:border-yellow-400"
-                    >
-                      {field.options?.map(
-                        (option) => (
-                          <option
-                            key={option}
-                            value={option}
-                          >
-                            {option}
-                          </option>
-                        )
-                      )}
-                    </select>
-
-                  </div>
-                );
-              }
-
-              return (
-                <div key={field.name}>
-
-                  <label className="mb-2 block text-sm font-semibold text-gray-300">
-                    {field.label}
-                  </label>
-
-                  <input
-                    value={
-                      values[field.name] ?? ""
-                    }
-                    onChange={(e) =>
-                      updateValue(
-                        field.name,
-                        e.target.value
-                      )
-                    }
-                    placeholder={
-                      field.placeholder
-                    }
-                    className="w-full rounded-2xl border border-white/10 bg-[#171717] px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400"
-                  />
-
-                </div>
-              );
-            })}
-
-          </div>
-
-          {/* ACTION */}
-          <div className="mt-8 flex gap-3">
-
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={loading}
-              className="rounded-2xl bg-yellow-500 px-8 py-4 font-bold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading
-                ? "⚡ AI sedang bekerja..."
-                : `${tool.icon} Generate ${tool.title}`}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleClear}
-              disabled={loading}
-              className="rounded-2xl border border-white/10 bg-white/5 px-7 py-4 font-semibold text-white hover:bg-white/10"
-            >
-              Clear
-            </button>
-
-          </div>
-
-        </div>
-
-        {/* RESULT */}
-        <div className="rounded-3xl border border-yellow-500/20 bg-[#111111] p-8">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-              <h2 className="text-2xl font-black text-white">
-                Hasil AI
-              </h2>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Hasil generate dari {tool.title}
-              </p>
-            </div>
-
-            {result && (
-              <span className="rounded-full bg-green-500/10 px-4 py-2 text-sm font-bold text-green-400">
-                ✓ Generated
-              </span>
-            )}
-
-          </div>
-
-          {!result && !loading && (
-            <div className="mt-8 rounded-2xl border border-white/5 bg-[#171717] p-12 text-center">
-
-              <div className="text-4xl">
-                ✨
-              </div>
-
-              <h3 className="mt-4 text-xl font-bold text-white">
-                Belum ada hasil
-              </h3>
-
-              <p className="mt-2 text-gray-500">
-                Isi form di atas lalu klik Generate AI.
-              </p>
-
-            </div>
-          )}
-
-          {loading && (
-            <div className="mt-8 rounded-2xl border border-white/5 bg-[#171717] p-12 text-center">
-
-              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-white/10 border-t-yellow-400" />
-
-              <p className="mt-4 text-gray-400">
-                AI sedang membuat hasil terbaik
-                untuk kamu...
-              </p>
-
-            </div>
-          )}
-
-          {result && !loading && (
-            <>
-              {/* MAIN RESULT */}
-              <div className="mt-8">
-
-                <div className="rounded-2xl border border-white/5 bg-[#171717] p-6">
-
-                  <pre className="whitespace-pre-wrap font-sans text-sm leading-7 text-gray-300">
-                    {result}
-                  </pre>
-
-                </div>
-
-                <div className="mt-4 flex justify-end">
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        result
-                      )
-                    }
-                    className="rounded-xl bg-yellow-500 px-5 py-3 font-bold text-black hover:bg-yellow-400"
-                  >
-                    📋 Copy Hasil
-                  </button>
-
-                </div>
-
-              </div>
-
-              {/* TUTORIAL */}
-              <div className="mt-8 rounded-3xl border border-yellow-500/20 bg-yellow-500/5 p-6">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-500 text-xl">
-                    📚
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-black text-white">
-                      Tutorial Lengkap
-                    </h3>
-
-                    <p className="text-sm text-gray-500">
-                      Ikuti langkah berikut jika kamu
-                      masih bingung harus mulai dari mana.
-                    </p>
-                  </div>
-
-                </div>
-
-                <div className="mt-6 space-y-4">
-
-                  {tool.tutorial.map(
-                    (step, index) => (
-                      <div
-                        key={step.title}
-                        className="rounded-2xl border border-white/10 bg-[#171717] p-5"
-                      >
-                        <div className="flex gap-4">
-
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-500 font-black text-black">
-                            {index + 1}
-                          </div>
-
-                          <div>
-                            <h4 className="font-bold text-white">
-                              {step.title}
-                            </h4>
-
-                            <p className="mt-2 text-sm leading-6 text-gray-400">
-                              {step.description}
-                            </p>
-                          </div>
-
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-base">
+                          {getHistoryIcon(item.tool)}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-bold text-white">
+                            {item.tool.replace("Content Studio • ", "")}
+                          </p>
+                          <p className="mt-1 truncate text-[11px] text-gray-500">
+                            {getHistoryPreview(item.prompt)}
+                          </p>
+                          <p className="mt-1.5 text-[10px] text-gray-600">
+                            {formatDate(item.createdAt)}
+                          </p>
                         </div>
                       </div>
-                    )
-                  )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </aside>
 
+          {/* MAIN */}
+          <div className="w-full min-w-0 max-w-full space-y-6 overflow-hidden">
+
+            {/* TOOL SELECTOR */}
+            <section className="w-full min-w-0 max-w-full overflow-hidden rounded-[28px] border border-white/10 bg-[#0f0f0f] p-5 sm:p-7">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                    Langkah 1
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                    Kamu mau bikin apa?
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+                    Pilih satu. Kalau kamu masih bingung, mulai dari{" "}
+                    <span className="font-semibold text-gray-300">
+                      Ide Konten
+                    </span>
+                    .
+                  </p>
                 </div>
 
+                <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold text-gray-500 sm:block">
+                  {tools.length} tools tersedia
+                </div>
               </div>
 
-              {/* ASK AI */}
-              <div className="mt-8 rounded-3xl border border-white/10 bg-[#111111] p-6">
+              <div className="mt-6 grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {tools.map((item) => {
+                  const active = selectedTool === item.id;
 
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => selectTool(item.id)}
+                      className={`group relative min-w-0 max-w-full overflow-hidden rounded-2xl border p-4 text-left transition-all duration-200 ${
+                        active
+                          ? "border-yellow-400/40 bg-yellow-500/[0.08] shadow-[0_10px_35px_rgba(234,179,8,.06)]"
+                          : "border-white/10 bg-[#151515] hover:-translate-y-0.5 hover:border-yellow-400/20 hover:bg-[#181818]"
+                      }`}
+                    >
+                      {active && (
+                        <div className="absolute right-3 top-3 rounded-full bg-yellow-400 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-black">
+                          Dipilih
+                        </div>
+                      )}
+
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl transition ${
+                          active
+                            ? "bg-yellow-400 text-black"
+                            : "bg-white/5 group-hover:bg-yellow-400/10"
+                        }`}
+                      >
+                        {item.icon}
+                      </div>
+
+                      <h3 className="mt-4 text-sm font-black text-white sm:text-base">
+                        {item.title}
+                      </h3>
+
+                      <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-gray-500">
+                        {item.description}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* FORM */}
+            <section className="w-full min-w-0 max-w-full overflow-hidden rounded-[28px] border border-white/10 bg-[#0f0f0f] p-5 sm:p-7">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-500 text-xl">
-                    💬
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-2xl text-black shadow-lg shadow-yellow-400/10">
+                    {tool.icon}
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-black text-white">
-                      Tanya AI
-                    </h3>
-
-                    <p className="text-sm text-gray-500">
-                      Bingung dengan hasil di atas?
-                      Tanya langsung kepada AI.
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                      Langkah 2
                     </p>
+                    <h2 className="mt-1 text-xl font-black text-white sm:text-2xl">
+                      {tool.title}
+                    </h2>
                   </div>
-
                 </div>
 
-                {/* QUICK QUESTIONS */}
-                <div className="mt-5 flex flex-wrap gap-2">
-
-                  {[
-                    "Saya harus mulai dari mana?",
-                    "Jelaskan dengan lebih sederhana.",
-                    "Berikan contoh untuk pemula.",
-                    "Bagaimana cara menerapkannya?",
-                  ].map((text) => (
-                    <button
-                      key={text}
-                      type="button"
-                      onClick={() =>
-                        setQuestion(text)
-                      }
-                      className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-gray-300 transition hover:border-yellow-400 hover:text-yellow-400"
-                    >
-                      {text}
-                    </button>
-                  ))}
-
+                <div className="rounded-full border border-green-400/10 bg-green-400/[0.05] px-3 py-1.5 text-[10px] font-bold text-green-400">
+                  ✓ Dibuat untuk pemula
                 </div>
+              </div>
 
-                {/* QUESTION FORM */}
-                <div className="mt-5 rounded-2xl border border-white/10 bg-[#171717] p-4">
-
-                  <textarea
-                    value={question}
-                    onChange={(e) =>
-                      setQuestion(e.target.value)
-                    }
-                    onKeyDown={(e) => {
-                      if (
-                        e.key === "Enter" &&
-                        !e.shiftKey
-                      ) {
-                        e.preventDefault();
-                        handleAskAI();
-                      }
-                    }}
-                    rows={4}
-                    placeholder="Contoh: Saya masih pemula, langkah pertama yang harus saya lakukan apa?"
-                    className="w-full resize-none bg-transparent text-sm leading-6 text-white outline-none placeholder:text-gray-600"
-                  />
-
-                  <div className="mt-3 flex items-center justify-between">
-
-                    <p className="text-xs text-gray-600">
-                      Enter untuk mengirim • Shift +
-                      Enter untuk baris baru
+              <div className="mt-5 rounded-2xl border border-yellow-400/15 bg-gradient-to-r from-yellow-400/[0.07] to-transparent p-4 sm:p-5">
+                <div className="flex gap-3">
+                  <span className="text-lg">💡</span>
+                  <div>
+                    <p className="text-sm font-bold text-yellow-400">
+                      Nggak tahu harus isi apa?
                     </p>
-
-                    <button
-                      type="button"
-                      onClick={handleAskAI}
-                      disabled={
-                        asking ||
-                        !question.trim()
-                      }
-                      className="rounded-xl bg-yellow-500 px-5 py-3 text-sm font-bold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {asking
-                        ? "AI menjawab..."
-                        : "Tanya AI →"}
-                    </button>
-
-                  </div>
-
-                </div>
-
-                {/* AI ANSWER */}
-                {answer && (
-                  <div className="mt-5 rounded-2xl border border-green-500/20 bg-green-500/5 p-5">
-
-                    <div className="flex items-center gap-2">
-
-                      <span className="text-lg">
-                        🤖
+                    <p className="mt-1 text-xs leading-6 text-gray-400 sm:text-sm">
+                      Tulis saja dengan bahasa sehari-hari. Nggak harus rapi dan
+                      nggak perlu tahu istilah marketing.
+                      <span className="font-semibold text-gray-200">
+                        {" "}Contoh: “Saya jual ebook Canva untuk guru.”
                       </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                      <p className="font-bold text-green-400">
-                        Jawaban AI
+              <div className="mt-7 grid gap-5 md:grid-cols-2">
+                {tool.fields.map((field) => {
+                  if (field.type === "textarea") {
+                    return (
+                      <div key={field.name} className="md:col-span-2">
+                        <label className="mb-2 block text-sm font-bold text-gray-300">
+                          {field.label}
+                        </label>
+
+                        <textarea
+                          value={values[field.name] ?? ""}
+                          onChange={(e) =>
+                            updateValue(field.name, e.target.value)
+                          }
+                          placeholder={field.placeholder}
+                          rows={5}
+                          className="w-full resize-none rounded-2xl border border-white/10 bg-[#151515] px-5 py-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400/60 focus:bg-[#181818] focus:ring-4 focus:ring-yellow-400/[0.05]"
+                        />
+                      </div>
+                    );
+                  }
+
+                  if (field.type === "select") {
+                    return (
+                      <div key={field.name}>
+                        <label className="mb-2 block text-sm font-bold text-gray-300">
+                          {field.label}
+                        </label>
+
+                        <select
+                          value={
+                            values[field.name] ?? field.options?.[0] ?? ""
+                          }
+                          onChange={(e) =>
+                            updateValue(field.name, e.target.value)
+                          }
+                          className="w-full appearance-none rounded-2xl border border-white/10 bg-[#151515] px-5 py-4 text-sm text-white outline-none transition focus:border-yellow-400/60 focus:ring-4 focus:ring-yellow-400/[0.05]"
+                        >
+                          {field.options?.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={field.name}>
+                      <label className="mb-2 block text-sm font-bold text-gray-300">
+                        {field.label}
+                      </label>
+
+                      <input
+                        value={values[field.name] ?? ""}
+                        onChange={(e) =>
+                          updateValue(field.name, e.target.value)
+                        }
+                        placeholder={field.placeholder}
+                        className="w-full rounded-2xl border border-white/10 bg-[#151515] px-5 py-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400/60 focus:bg-[#181818] focus:ring-4 focus:ring-yellow-400/[0.05]"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-7 flex flex-col gap-3 border-t border-white/5 pt-6 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={loading}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-yellow-400 px-7 py-4 text-sm font-black text-black shadow-lg shadow-yellow-400/10 transition hover:-translate-y-0.5 hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {loading
+                    ? "⚡ AI sedang bekerja..."
+                    : `${tool.icon} Buat dengan AI`}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  disabled={loading}
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] px-7 py-4 text-sm font-bold text-gray-300 transition hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
+                >
+                  Bersihkan
+                </button>
+              </div>
+
+              <p className="mt-3 text-center text-[11px] text-gray-600">
+                Kamu cukup isi informasinya. Rife yang membantu menyusun hasilnya.
+              </p>
+            </section>
+
+            {/* RESULT */}
+            <section className="w-full min-w-0 max-w-full overflow-hidden rounded-[28px] border border-white/10 bg-[#0f0f0f] p-5 sm:p-7">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400">
+                    Langkah 3
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black text-white">
+                    Hasil untuk Kamu
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {result
+                      ? `Hasil dari ${tool.title} siap digunakan.`
+                      : "Belum ada hasil. Isi form lalu mulai generate."}
+                  </p>
+                </div>
+
+                {result && (
+                  <span className="inline-flex w-fit items-center rounded-full border border-green-400/20 bg-green-400/[0.06] px-3 py-1.5 text-xs font-bold text-green-400">
+                    ✓ Selesai
+                  </span>
+                )}
+              </div>
+
+              {!result && !loading && (
+                <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-[#151515] p-10 text-center sm:p-14">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400/[0.08] text-2xl">
+                    ✨
+                  </div>
+                  <h3 className="mt-4 text-lg font-black text-white">
+                    Hasilmu akan muncul di sini
+                  </h3>
+                  <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">
+                    Nggak perlu takut salah. Mulai saja dengan informasi yang
+                    kamu punya, lalu biarkan AI membantu.
+                  </p>
+                </div>
+              )}
+
+              {loading && (
+                <div className="mt-6 rounded-2xl border border-yellow-400/10 bg-yellow-400/[0.04] p-10 text-center sm:p-14">
+                  <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-yellow-400" />
+                  <h3 className="mt-5 text-lg font-black text-white">
+                    Rife sedang membuatkan kontenmu...
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Tunggu sebentar. Kamu nggak perlu melakukan apa-apa.
+                  </p>
+                </div>
+              )}
+
+              {result && !loading && (
+                <>
+                  <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0b]">
+                    <div className="flex items-center justify-between border-b border-white/5 px-4 py-3 sm:px-5">
+                      <p className="text-xs font-bold text-gray-400">
+                        Output AI
                       </p>
 
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText(result)}
+                        className="rounded-xl bg-yellow-400 px-4 py-2 text-xs font-black text-black transition hover:bg-yellow-300"
+                      >
+                        📋 Copy
+                      </button>
                     </div>
 
-                    <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-7 text-gray-300">
-                      {answer}
+                    <pre className="max-h-[650px] overflow-auto whitespace-pre-wrap p-5 font-sans text-sm leading-7 text-gray-300 sm:p-6">
+                      {result}
                     </pre>
-
                   </div>
-                )}
 
-              </div>
-            </>
-          )}
+                  {/* TUTORIAL */}
+                  <div className="mt-6 rounded-2xl border border-yellow-400/15 bg-yellow-400/[0.04] p-5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-400 text-xl text-black">
+                        📚
+                      </div>
 
-                </div>
+                      <div>
+                        <h3 className="text-lg font-black text-white sm:text-xl">
+                          Setelah ini harus ngapain?
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                          Ikuti langkah sederhana ini kalau kamu masih bingung.
+                        </p>
+                      </div>
+                    </div>
 
+                    <div className="mt-5 grid gap-3">
+                      {tool.tutorial.map((step, index) => (
+                        <div
+                          key={step.title}
+                          className="rounded-2xl border border-white/10 bg-[#151515] p-4 sm:p-5"
+                        >
+                          <div className="flex gap-3 sm:gap-4">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-400 text-xs font-black text-black">
+                              {index + 1}
+                            </div>
+
+                            <div>
+                              <h4 className="font-bold text-white">
+                                {step.title}
+                              </h4>
+                              <p className="mt-1.5 text-xs leading-6 text-gray-400 sm:text-sm">
+                                {step.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ASK AI */}
+                  <div className="mt-6 rounded-2xl border border-white/10 bg-[#111111] p-5 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-400 text-xl text-black">
+                        💬
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-black text-white sm:text-xl">
+                          Masih bingung?
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                          Tanyakan hasil ini langsung ke Rife.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {[
+                        "Saya harus mulai dari mana?",
+                        "Jelaskan lebih sederhana.",
+                        "Berikan contoh untuk pemula.",
+                        "Bagaimana cara menerapkannya?",
+                      ].map((text) => (
+                        <button
+                          key={text}
+                          type="button"
+                          onClick={() => setQuestion(text)}
+                          className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[11px] text-gray-300 transition hover:border-yellow-400/30 hover:bg-yellow-400/[0.05] hover:text-yellow-400"
+                        >
+                          {text}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-[#171717] p-4">
+                      <textarea
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleAskAI();
+                          }
+                        }}
+                        rows={3}
+                        placeholder="Contoh: Saya masih pemula, langkah pertama yang harus saya lakukan apa?"
+                        className="w-full resize-none bg-transparent text-sm leading-6 text-white outline-none placeholder:text-gray-600"
+                      />
+
+                      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-[10px] text-gray-600">
+                          Enter untuk mengirim • Shift + Enter untuk baris baru
+                        </p>
+
+                        <button
+                          type="button"
+                          onClick={handleAskAI}
+                          disabled={asking || !question.trim()}
+                          className="rounded-xl bg-yellow-400 px-5 py-3 text-sm font-black text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {asking ? "AI sedang menjawab..." : "Tanya Rife →"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {answer && (
+                      <div className="mt-4 rounded-2xl border border-green-400/15 bg-green-400/[0.04] p-5">
+                        <div className="flex items-center gap-2">
+                          <span>🤖</span>
+                          <p className="text-sm font-black text-green-400">
+                            Jawaban Rife
+                          </p>
+                        </div>
+
+                        <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-7 text-gray-300">
+                          {answer}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </section>
+          </div>
+        </div>
       </div>
-
-    </div>
     </DashboardLayout>
   );
 }

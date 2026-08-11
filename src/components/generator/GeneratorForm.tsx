@@ -1,6 +1,16 @@
 import { useState } from "react";
 import type { KeyboardEvent } from "react";
 
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  HelpCircle,
+  Lightbulb,
+  MessageCircle,
+  Sparkles,
+} from "lucide-react";
+
 import { generateText } from "../../services/ai";
 
 import {
@@ -69,8 +79,7 @@ export default function GeneratorForm({
   const [chatMessages, setChatMessages] =
     useState<ChatMessage[]>([]);
 
-  const [chatLoading, setChatLoading] =
-    useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
 
   // ==============================
   // UPDATE FORM
@@ -273,8 +282,7 @@ menggunakan tool ini sebelumnya.
   // ==============================
 
   async function handleAskAI() {
-    const trimmedQuestion =
-      question.trim();
+    const trimmedQuestion = question.trim();
 
     if (!trimmedQuestion) {
       return;
@@ -321,7 +329,11 @@ menggunakan tool ini sebelumnya.
         chatMessages
           .map(
             (message) =>
-              `${message.role === "user" ? "USER" : "AI"}: ${message.message}`
+              `${
+                message.role === "user"
+                  ? "USER"
+                  : "AI"
+              }: ${message.message}`
           )
           .join("\n\n");
 
@@ -364,7 +376,10 @@ ATURAN:
         userPrompt: `
 Percakapan sebelumnya:
 
-${previousConversation || "Belum ada percakapan sebelumnya."}
+${
+  previousConversation ||
+  "Belum ada percakapan sebelumnya."
+}
 
 Pertanyaan terbaru pengguna:
 
@@ -424,209 +439,443 @@ Jawab pertanyaan tersebut secara praktis dan jelas.
   // ==============================
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#111111] p-8">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#101010] shadow-[0_20px_80px_rgba(0,0,0,.25)]">
+      {/* TOP GLOW */}
 
-      {/* HEADER */}
+      <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-[500px] -translate-x-1/2 rounded-full bg-yellow-400/[0.05] blur-[100px]" />
 
-      <div>
-        <div className="flex items-center gap-3">
+      <div className="relative p-5 sm:p-7 lg:p-8">
 
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-500/10 text-xl">
-            ✨
+        {/* ==============================
+            HEADER
+        ============================== */}
+
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+
+          <div className="flex min-w-0 items-start gap-4">
+
+            {/* ICON */}
+
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/10">
+              <Sparkles size={21} strokeWidth={2.5} />
+            </div>
+
+            {/* TITLE */}
+
+            <div className="min-w-0">
+
+              <div className="flex flex-wrap items-center gap-2">
+
+                <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">
+                  {title}
+                </h2>
+
+                <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-yellow-400">
+                  AI
+                </span>
+
+              </div>
+
+              <p className="mt-1.5 max-w-xl text-xs leading-6 text-gray-500 sm:text-sm">
+                Isi beberapa informasi sederhana.
+                Rife akan membantu membuat hasilnya untukmu.
+              </p>
+
+            </div>
+
           </div>
 
-          <div>
-            <h2 className="text-3xl font-black text-white">
-              {title}
-            </h2>
+          {/* BEGINNER LABEL */}
 
-            <p className="mt-1 text-sm text-gray-500">
-              Buat hasil profesional dengan bantuan Rife AI.
-            </p>
+          <div className="hidden shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 sm:flex">
+
+            <HelpCircle
+              size={13}
+              className="text-yellow-400"
+            />
+
+            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-gray-500">
+              Tidak perlu jago AI
+            </span>
+
           </div>
 
         </div>
-      </div>
 
-      {/* FORM */}
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
+        {/* ==============================
+            SIMPLE GUIDE
+        ============================== */}
 
-        {fields.map((field) => {
+        <div className="mt-6 grid gap-2 sm:grid-cols-3">
 
-          if (field.type === "select") {
-            return (
-              <select
-                key={field.name}
-                value={
-                  values[field.name] ??
-                  field.options?.[0] ??
-                  ""
-                }
-                onChange={(e) =>
-                  updateValue(
-                    field.name,
-                    e.target.value
-                  )
-                }
-                className="rounded-2xl border border-white/10 bg-[#1B1B1B] px-5 py-4 text-white outline-none transition focus:border-yellow-400"
-              >
+          <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.025] px-3 py-3">
 
-                {field.options?.map(
-                  (option) => (
-                    <option
-                      key={option}
-                      value={option}
-                    >
-                      {option}
-                    </option>
-                  )
-                )}
-
-              </select>
-            );
-          }
-
-          return (
-            <input
-              key={field.name}
-              value={
-                values[field.name] ?? ""
-              }
-              onChange={(e) =>
-                updateValue(
-                  field.name,
-                  e.target.value
-                )
-              }
-              placeholder={
-                field.placeholder ||
-                field.label
-              }
-              className="rounded-2xl border border-white/10 bg-[#1B1B1B] px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-yellow-400"
-            />
-          );
-        })}
-
-      </div>
-
-      {/* GENERATE BUTTON */}
-
-      <GeneratorButton
-        loading={loading}
-        text={buttonText}
-        onClick={handleGenerate}
-      />
-
-      {/* ==============================
-          HASIL AI
-      ============================== */}
-
-      {result && (
-        <div className="mt-8 space-y-6">
-
-          <div>
-
-            <div className="mb-4 flex items-center justify-between">
-
-              <div>
-
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">
-                  AI RESULT
-                </p>
-
-                <h3 className="mt-1 text-xl font-black text-white">
-                  Hasil {title}
-                </h3>
-
-              </div>
-
-              <div className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-bold text-green-400">
-                ✓ Generated
-              </div>
-
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-yellow-400/10 text-[10px] font-black text-yellow-400">
+              01
             </div>
 
-            <GeneratorResult result={result} />
+            <div>
+              <p className="text-[11px] font-bold text-white">
+                Ceritakan
+              </p>
+
+              <p className="text-[10px] text-gray-600">
+                Isi kebutuhanmu
+              </p>
+            </div>
 
           </div>
 
-          {/* ==============================
-              TUTORIAL
-          ============================== */}
 
-          <section className="overflow-hidden rounded-3xl border border-white/10 bg-[#0D0D0D]">
+          <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.025] px-3 py-3">
 
-            <div className="border-b border-white/10 bg-[#111111] px-6 py-5">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-yellow-400/10 text-[10px] font-black text-yellow-400">
+              02
+            </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[11px] font-bold text-white">
+                Klik Generate
+              </p>
 
-                <div>
+              <p className="text-[10px] text-gray-600">
+                Biar Rife yang bekerja
+              </p>
+            </div>
 
-                  <div className="flex items-center gap-2">
+          </div>
 
-                    <span className="text-xl">
-                      📚
+
+          <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.025] px-3 py-3">
+
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-yellow-400/10 text-[10px] font-black text-yellow-400">
+              03
+            </div>
+
+            <div>
+              <p className="text-[11px] font-bold text-white">
+                Gunakan hasilnya
+              </p>
+
+              <p className="text-[10px] text-gray-600">
+                Edit jika diperlukan
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        {/* ==============================
+            FORM
+        ============================== */}
+
+        <div className="mt-7">
+
+          <div className="mb-4 flex items-center justify-between">
+
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-400">
+                Mulai di sini
+              </p>
+
+              <h3 className="mt-1 text-sm font-bold text-white">
+                Ceritakan apa yang kamu butuhkan
+              </h3>
+            </div>
+
+            <span className="hidden text-[10px] text-gray-600 sm:block">
+              {fields.length} informasi
+            </span>
+
+          </div>
+
+
+          <div className="grid gap-4 md:grid-cols-2">
+
+            {fields.map((field, index) => {
+
+              const currentValue =
+                values[field.name] ??
+                field.options?.[0] ??
+                "";
+
+              const fieldNumber =
+                String(index + 1).padStart(2, "0");
+
+              if (field.type === "select") {
+
+                return (
+                  <div
+                    key={field.name}
+                    className="group"
+                  >
+
+                    <label
+                      htmlFor={field.name}
+                      className="mb-2.5 flex items-center gap-2"
+                    >
+
+                      <span className="flex h-5 w-5 items-center justify-center rounded-md bg-white/[0.05] text-[8px] font-black text-gray-500">
+                        {fieldNumber}
+                      </span>
+
+                      <span className="text-xs font-bold text-gray-300">
+                        {field.label}
+                      </span>
+
+                    </label>
+
+                    <div className="relative">
+
+                      <select
+                        id={field.name}
+                        value={currentValue}
+                        onChange={(e) =>
+                          updateValue(
+                            field.name,
+                            e.target.value
+                          )
+                        }
+                        className="
+                          w-full
+                          appearance-none
+                          rounded-2xl
+                          border
+                          border-white/10
+                          bg-[#171717]
+                          px-4
+                          py-4
+                          pr-10
+                          text-sm
+                          font-medium
+                          text-white
+                          outline-none
+                          transition-all
+                          duration-200
+                          hover:border-white/20
+                          focus:border-yellow-400/50
+                          focus:bg-[#1a1a1a]
+                          focus:ring-4
+                          focus:ring-yellow-400/[0.05]
+                        "
+                      >
+
+                        {field.options?.map(
+                          (option) => (
+                            <option
+                              key={option}
+                              value={option}
+                            >
+                              {option}
+                            </option>
+                          )
+                        )}
+
+                      </select>
+
+                      <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
+                        <ArrowRight
+                          size={15}
+                          className="rotate-90"
+                        />
+                      </div>
+
+                    </div>
+
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={field.name}
+                  className="group"
+                >
+
+                  <label
+                    htmlFor={field.name}
+                    className="mb-2.5 flex items-center gap-2"
+                  >
+
+                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-white/[0.05] text-[8px] font-black text-gray-500">
+                      {fieldNumber}
                     </span>
 
-                    <h3 className="text-xl font-black text-white">
-                      Tutorial Lengkap
-                    </h3>
+                    <span className="text-xs font-bold text-gray-300">
+                      {field.label}
+                    </span>
+
+                  </label>
+
+                  <div className="relative">
+
+                    <input
+                      id={field.name}
+                      value={
+                        values[field.name] ?? ""
+                      }
+                      onChange={(e) =>
+                        updateValue(
+                          field.name,
+                          e.target.value
+                        )
+                      }
+                      placeholder={
+                        field.placeholder ||
+                        `Contoh: ${field.label}`
+                      }
+                      className="
+                        w-full
+                        rounded-2xl
+                        border
+                        border-white/10
+                        bg-[#171717]
+                        px-4
+                        py-4
+                        text-sm
+                        font-medium
+                        text-white
+                        outline-none
+                        transition-all
+                        duration-200
+                        placeholder:text-gray-600
+                        hover:border-white/20
+                        focus:border-yellow-400/50
+                        focus:bg-[#1a1a1a]
+                        focus:ring-4
+                        focus:ring-yellow-400/[0.05]
+                      "
+                    />
 
                   </div>
 
-                  <p className="mt-2 text-sm text-gray-500">
-                    Panduan langkah demi langkah menggunakan hasil AI ini.
+                </div>
+              );
+            })}
+
+          </div>
+
+        </div>
+
+
+        {/* ==============================
+            HELPER MESSAGE
+        ============================== */}
+
+        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-yellow-400/10 bg-yellow-400/[0.04] p-4">
+
+          <Lightbulb
+            size={17}
+            className="mt-0.5 shrink-0 text-yellow-400"
+          />
+
+          <div>
+
+            <p className="text-xs font-bold text-white">
+              Bingung harus menulis apa?
+            </p>
+
+            <p className="mt-1 text-[11px] leading-5 text-gray-500">
+              Tulis saja dengan bahasa sehari-hari.
+              Tidak perlu membuat prompt khusus.
+              Rife akan membantu memahami kebutuhanmu.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        {/* ==============================
+            GENERATE BUTTON
+        ============================== */}
+
+        <div className="mt-5">
+
+          <GeneratorButton
+            loading={loading}
+            text={buttonText}
+            onClick={handleGenerate}
+          />
+
+        </div>
+
+
+        {/* ==============================
+            HASIL AI
+        ============================== */}
+
+        {result && (
+          <div className="mt-8 space-y-6">
+
+            {/* RESULT HEADER */}
+
+            <div>
+
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                <div>
+
+                  <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-400">
+
+                    <Sparkles size={12} />
+
+                    AI RESULT
+
                   </p>
+
+                  <h3 className="mt-1 text-xl font-black text-white">
+                    Hasil {title}
+                  </h3>
 
                 </div>
 
-                {!tutorial && (
-                  <button
-                    type="button"
-                    onClick={
-                      handleGenerateTutorial
-                    }
-                    disabled={
-                      tutorialLoading
-                    }
-                    className="rounded-xl bg-yellow-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {tutorialLoading
-                      ? "⏳ Membuat Tutorial..."
-                      : "📚 Buat Tutorial"}
-                  </button>
-                )}
+                <div className="flex w-fit items-center gap-2 rounded-full border border-green-400/10 bg-green-500/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-green-400">
+
+                  <CheckCircle2 size={12} />
+
+                  Generated
+
+                </div>
 
               </div>
 
+              <GeneratorResult result={result} />
+
             </div>
 
-            <div className="p-6">
 
-              {!tutorial &&
-                !tutorialLoading && (
-                  <div className="rounded-2xl border border-white/5 bg-[#151515] p-6">
+            {/* ==============================
+                TUTORIAL
+            ============================== */}
 
-                    <div className="flex items-start gap-4">
+            <section className="overflow-hidden rounded-3xl border border-white/10 bg-[#0d0d0d]">
 
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yellow-500/10">
-                        📖
+              <div className="border-b border-white/10 bg-[#111111] px-5 py-5 sm:px-6">
+
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                  <div>
+
+                    <div className="flex items-center gap-3">
+
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400/10 text-yellow-400">
+
+                        <BookOpen size={18} />
+
                       </div>
 
                       <div>
 
-                        <h4 className="font-bold text-white">
-                          Belajar dari hasil AI
-                        </h4>
+                        <h3 className="text-lg font-black text-white sm:text-xl">
+                          Tutorial Lengkap
+                        </h3>
 
-                        <p className="mt-2 text-sm leading-7 text-gray-500">
-                          Klik tombol{" "}
-                          <span className="font-semibold text-gray-300">
-                            Buat Tutorial
-                          </span>{" "}
-                          untuk mendapatkan panduan lengkap
-                          dari awal sampai bisa menerapkannya.
+                        <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                          Belajar menggunakan hasil AI ini dari nol.
                         </p>
 
                       </div>
@@ -634,251 +883,416 @@ Jawab pertanyaan tersebut secara praktis dan jelas.
                     </div>
 
                   </div>
-                )}
 
-              {tutorialLoading && (
-                <div className="rounded-2xl border border-white/5 bg-[#151515] p-8 text-center">
+                  {!tutorial && (
+                    <button
+                      type="button"
+                      onClick={
+                        handleGenerateTutorial
+                      }
+                      disabled={
+                        tutorialLoading
+                      }
+                      className="
+                        flex
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-xl
+                        bg-yellow-400
+                        px-5
+                        py-3
+                        text-xs
+                        font-black
+                        text-black
+                        transition
+                        hover:bg-yellow-300
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
+                      "
+                    >
 
-                  <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-white/10 border-t-yellow-400" />
+                      <BookOpen size={15} />
 
-                  <p className="mt-4 text-sm text-gray-400">
-                    Rife AI sedang membuat tutorial lengkap...
-                  </p>
+                      {tutorialLoading
+                        ? "Membuat Tutorial..."
+                        : "Buat Tutorial"}
+
+                    </button>
+                  )}
 
                 </div>
-              )}
 
-              {tutorial &&
-                !tutorialLoading && (
-                  <div className="rounded-2xl border border-white/5 bg-[#151515] p-6">
+              </div>
 
-                    <div className="mb-5 flex items-center gap-2">
 
-                      <span className="text-lg">
-                        🎓
-                      </span>
+              <div className="p-5 sm:p-6">
 
-                      <p className="text-sm font-bold text-yellow-400">
-                        Panduan Lengkap
-                      </p>
+                {!tutorial &&
+                  !tutorialLoading && (
+                    <div className="rounded-2xl border border-white/5 bg-[#151515] p-5 sm:p-6">
+
+                      <div className="flex items-start gap-4">
+
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yellow-400/10">
+
+                          <Lightbulb
+                            size={18}
+                            className="text-yellow-400"
+                          />
+
+                        </div>
+
+                        <div>
+
+                          <h4 className="font-bold text-white">
+                            Jangan cuma menghasilkan — pelajari juga caranya
+                          </h4>
+
+                          <p className="mt-2 text-xs leading-6 text-gray-500 sm:text-sm sm:leading-7">
+                            Klik{" "}
+                            <span className="font-semibold text-gray-300">
+                              Buat Tutorial
+                            </span>{" "}
+                            untuk mendapatkan panduan sederhana
+                            dari awal sampai kamu tahu cara
+                            menggunakan hasil ini.
+                          </p>
+
+                        </div>
+
+                      </div>
 
                     </div>
+                  )}
 
-                    <div className="whitespace-pre-wrap text-sm leading-8 text-gray-300">
-                      {tutorial}
-                    </div>
+
+                {tutorialLoading && (
+                  <div className="rounded-2xl border border-white/5 bg-[#151515] p-8 text-center">
+
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/10 border-t-yellow-400 animate-spin" />
+
+                    <p className="mt-4 text-sm font-medium text-gray-400">
+                      Rife sedang menyiapkan tutorial...
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-600">
+                      Tunggu sebentar, hampir selesai.
+                    </p>
 
                   </div>
                 )}
 
-            </div>
 
-          </section>
+                {tutorial &&
+                  !tutorialLoading && (
+                    <div className="rounded-2xl border border-white/5 bg-[#151515] p-5 sm:p-6">
 
-          {/* ==============================
-              TANYA AI
-          ============================== */}
+                      <div className="mb-5 flex items-center gap-3">
 
-          <section className="overflow-hidden rounded-3xl border border-yellow-500/20 bg-[#0D0D0D]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-400/10">
 
-            <div className="border-b border-white/10 bg-[#111111] px-6 py-5">
+                          <BookOpen
+                            size={16}
+                            className="text-yellow-400"
+                          />
 
-              <div className="flex items-center gap-3">
+                        </div>
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-500 text-xl">
-                  🤖
+                        <p className="text-sm font-bold text-yellow-400">
+                          Panduan Lengkap
+                        </p>
+
+                      </div>
+
+                      <div className="whitespace-pre-wrap text-xs leading-7 text-gray-300 sm:text-sm sm:leading-8">
+                        {tutorial}
+                      </div>
+
+                    </div>
+                  )}
+
+              </div>
+
+            </section>
+
+
+            {/* ==============================
+                TANYA AI
+            ============================== */}
+
+            <section className="overflow-hidden rounded-3xl border border-yellow-500/20 bg-[#0d0d0d]">
+
+              <div className="border-b border-white/10 bg-[#111111] px-5 py-5 sm:px-6">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/10">
+
+                    <MessageCircle
+                      size={19}
+                    />
+
+                  </div>
+
+                  <div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+
+                      <h3 className="text-lg font-black text-white sm:text-xl">
+                        Tanya Rife
+                      </h3>
+
+                      <span className="rounded-full bg-yellow-400/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-yellow-400">
+                        Mentor AI
+                      </span>
+
+                    </div>
+
+                    <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                      Masih bingung? Tanyakan langsung ke Rife.
+                    </p>
+
+                  </div>
+
                 </div>
 
-                <div>
+              </div>
 
-                  <div className="flex items-center gap-2">
 
-                    <h3 className="text-xl font-black text-white">
-                      Tanya AI
-                    </h3>
+              <div className="p-5 sm:p-6">
 
-                    <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-yellow-400">
-                      Mentor
+                {/* CHAT MESSAGES */}
+
+                {chatMessages.length > 0 && (
+                  <div className="mb-6 max-h-[500px] space-y-4 overflow-y-auto pr-1">
+
+                    {chatMessages.map(
+                      (message, index) => (
+
+                        <div
+                          key={`${message.role}-${index}`}
+                          className={`flex ${
+                            message.role === "user"
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+
+                          <div
+                            className={`max-w-[92%] rounded-2xl px-4 py-4 sm:max-w-[85%] ${
+                              message.role ===
+                              "user"
+                                ? "bg-yellow-400 text-black"
+                                : "border border-white/10 bg-[#181818] text-gray-300"
+                            }`}
+                          >
+
+                            <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.12em] opacity-60">
+                              {message.role ===
+                              "user"
+                                ? "Kamu"
+                                : "Rife AI"}
+                            </p>
+
+                            <p className="whitespace-pre-wrap text-xs leading-7 sm:text-sm">
+                              {message.message}
+                            </p>
+
+                          </div>
+
+                        </div>
+
+                      )
+                    )}
+
+
+                    {chatLoading && (
+                      <div className="flex justify-start">
+
+                        <div className="rounded-2xl border border-white/10 bg-[#181818] px-5 py-4">
+
+                          <div className="flex items-center gap-2">
+
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-yellow-400" />
+
+                            <div
+                              className="h-2 w-2 animate-bounce rounded-full bg-yellow-400"
+                              style={{
+                                animationDelay:
+                                  "150ms",
+                              }}
+                            />
+
+                            <div
+                              className="h-2 w-2 animate-bounce rounded-full bg-yellow-400"
+                              style={{
+                                animationDelay:
+                                  "300ms",
+                              }}
+                            />
+
+                            <span className="ml-2 text-xs text-gray-500">
+                              Rife sedang berpikir...
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+                    )}
+
+                  </div>
+                )}
+
+
+                {/* QUICK QUESTIONS */}
+
+                <div className="mb-4">
+
+                  <div className="mb-2 flex items-center gap-2">
+
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-600">
+                      Bingung mau tanya apa?
                     </span>
 
                   </div>
 
-                  <p className="mt-1 text-sm text-gray-500">
-                    Tanyakan apa pun tentang hasil AI ini.
-                  </p>
+                  <div className="flex flex-wrap gap-2">
 
-                </div>
+                    {[
+                      "Bagaimana cara menggunakannya?",
+                      "Buat versi yang lebih menarik",
+                      "Buat versi yang lebih singkat",
+                      "Berikan saya contohnya",
+                    ].map(
+                      (quickQuestion) => (
 
-              </div>
-
-            </div>
-
-            <div className="p-6">
-
-              {/* CHAT MESSAGES */}
-
-              {chatMessages.length > 0 && (
-                <div className="mb-6 max-h-[500px] space-y-4 overflow-y-auto pr-1">
-
-                  {chatMessages.map(
-                    (message, index) => (
-
-                      <div
-                        key={`${message.role}-${index}`}
-                        className={`flex ${
-                          message.role === "user"
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
-                      >
-
-                        <div
-                          className={`max-w-[90%] rounded-2xl px-5 py-4 ${
-                            message.role === "user"
-                              ? "bg-yellow-400 text-black"
-                              : "border border-white/10 bg-[#181818] text-gray-300"
-                          }`}
+                        <button
+                          key={quickQuestion}
+                          type="button"
+                          disabled={chatLoading}
+                          onClick={() =>
+                            setQuestion(
+                              quickQuestion
+                            )
+                          }
+                          className="
+                            rounded-full
+                            border
+                            border-white/10
+                            bg-white/[0.03]
+                            px-3
+                            py-2
+                            text-[10px]
+                            text-gray-400
+                            transition
+                            hover:border-yellow-400/40
+                            hover:bg-yellow-400/[0.05]
+                            hover:text-yellow-400
+                            disabled:opacity-50
+                            sm:text-xs
+                          "
                         >
+                          {quickQuestion}
+                        </button>
 
-                          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider opacity-60">
-                            {message.role ===
-                            "user"
-                              ? "Kamu"
-                              : "Rife AI"}
-                          </p>
+                      )
+                    )}
 
-                          <p className="whitespace-pre-wrap text-sm leading-7">
-                            {message.message}
-                          </p>
-
-                        </div>
-
-                      </div>
-
-                    )
-                  )}
-
-                  {chatLoading && (
-                    <div className="flex justify-start">
-
-                      <div className="rounded-2xl border border-white/10 bg-[#181818] px-5 py-4">
-
-                        <div className="flex items-center gap-2">
-
-                          <div className="h-2 w-2 animate-bounce rounded-full bg-yellow-400" />
-
-                          <div
-                            className="h-2 w-2 animate-bounce rounded-full bg-yellow-400"
-                            style={{
-                              animationDelay:
-                                "150ms",
-                            }}
-                          />
-
-                          <div
-                            className="h-2 w-2 animate-bounce rounded-full bg-yellow-400"
-                            style={{
-                              animationDelay:
-                                "300ms",
-                            }}
-                          />
-
-                          <span className="ml-2 text-xs text-gray-500">
-                            Rife AI sedang berpikir...
-                          </span>
-
-                        </div>
-
-                      </div>
-
-                    </div>
-                  )}
+                  </div>
 
                 </div>
-              )}
 
-              {/* QUICK QUESTIONS */}
 
-              <div className="mb-4 flex flex-wrap gap-2">
+                {/* QUESTION INPUT */}
 
-                {[
-                  "Bagaimana cara menggunakannya?",
-                  "Buat versi yang lebih menarik",
-                  "Buat versi yang lebih singkat",
-                  "Berikan saya contohnya",
-                ].map(
-                  (quickQuestion) => (
+                <div className="rounded-2xl border border-white/10 bg-[#151515] p-3 transition focus-within:border-yellow-400/30">
+
+                  <textarea
+                    value={question}
+                    onChange={(e) =>
+                      setQuestion(
+                        e.target.value
+                      )
+                    }
+                    onKeyDown={
+                      handleQuestionKeyDown
+                    }
+                    disabled={chatLoading}
+                    rows={4}
+                    placeholder="Contoh: Bagaimana cara menggunakan hasil ini?"
+                    className="
+                      w-full
+                      resize-none
+                      bg-transparent
+                      px-3
+                      py-2
+                      text-xs
+                      leading-7
+                      text-white
+                      outline-none
+                      placeholder:text-gray-600
+                      disabled:opacity-50
+                      sm:text-sm
+                    "
+                  />
+
+                  <div className="mt-2 flex flex-col gap-3 px-3 pb-1 sm:flex-row sm:items-center sm:justify-between">
+
+                    <p className="text-[10px] text-gray-600">
+                      Enter untuk mengirim • Shift + Enter untuk baris baru
+                    </p>
 
                     <button
-                      key={quickQuestion}
                       type="button"
-                      disabled={chatLoading}
-                      onClick={() =>
-                        setQuestion(
-                          quickQuestion
-                        )
+                      onClick={handleAskAI}
+                      disabled={
+                        chatLoading ||
+                        !question.trim()
                       }
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-400 transition hover:border-yellow-400/50 hover:text-yellow-400 disabled:opacity-50"
+                      className="
+                        flex
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-xl
+                        bg-yellow-400
+                        px-5
+                        py-3
+                        text-xs
+                        font-black
+                        text-black
+                        transition
+                        hover:bg-yellow-300
+                        disabled:cursor-not-allowed
+                        disabled:opacity-40
+                      "
                     >
-                      {quickQuestion}
+
+                      {chatLoading
+                        ? "AI Menjawab..."
+                        : "Tanya Rife"}
+
+                      {!chatLoading && (
+                        <ArrowRight size={14} />
+                      )}
+
                     </button>
 
-                  )
-                )}
-
-              </div>
-
-              {/* QUESTION INPUT */}
-
-              <div className="rounded-2xl border border-white/10 bg-[#151515] p-3">
-
-                <textarea
-                  value={question}
-                  onChange={(e) =>
-                    setQuestion(
-                      e.target.value
-                    )
-                  }
-                  onKeyDown={
-                    handleQuestionKeyDown
-                  }
-                  disabled={chatLoading}
-                  rows={4}
-                  placeholder="Contoh: Bagaimana cara menggunakan hasil ini untuk mendapatkan lebih banyak pembeli?"
-                  className="w-full resize-none bg-transparent px-3 py-2 text-sm leading-7 text-white outline-none placeholder:text-gray-600 disabled:opacity-50"
-                />
-
-                <div className="mt-2 flex flex-col gap-3 px-3 pb-1 sm:flex-row sm:items-center sm:justify-between">
-
-                  <p className="text-[11px] text-gray-600">
-                    Enter untuk mengirim • Shift + Enter untuk baris baru
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={handleAskAI}
-                    disabled={
-                      chatLoading ||
-                      !question.trim()
-                    }
-                    className="rounded-xl bg-yellow-400 px-6 py-3 text-sm font-bold text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    {chatLoading
-                      ? "AI Menjawab..."
-                      : "Tanya AI →"}
-                  </button>
+                  </div>
 
                 </div>
 
               </div>
 
-            </div>
+            </section>
 
-          </section>
+          </div>
+        )}
 
-        </div>
-      )}
-
+      </div>
     </div>
   );
 }
@@ -888,9 +1302,7 @@ Jawab pertanyaan tersebut secara praktis dan jelas.
    HISTORY TOOL NAME
 ========================================== */
 
-function getHistoryToolName(
-  title: string
-) {
+function getHistoryToolName(title: string) {
   const normalized = title
     .toLowerCase()
     .trim();
