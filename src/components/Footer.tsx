@@ -82,8 +82,8 @@ function Footer() {
             </h3>
 
             <ul className="space-y-3 text-gray-400">
-              <li>Email: support@rifedigital.ai</li>
-              <li>WhatsApp: +62 812-3456-7890</li>
+              <li>Email: ttputrasatu@gmail.com</li>
+              <li>WhatsApp: 082335952469</li>
               <li>Indonesia</li>
             </ul>
           </div>

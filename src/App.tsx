@@ -8,6 +8,7 @@ import AIMarketing from "./pages/AIMarketing";
 import AIContent from "./pages/AIContent";
 import History from "./pages/History";
 import LandingPage from "./pages/LandingPage";
+import Settings from "./pages/Settings";
 
 import Pricing from "./components/Pricing";
 
@@ -16,22 +17,27 @@ import ProtectedRoute from "./components/ProtectedRoute";
 export default function App() {
   return (
     <Routes>
-
-      {/* Landing */}
+      {/* ================================= */}
+      {/* LANDING */}
+      {/* ================================= */}
 
       <Route
         path="/"
         element={<LandingPage />}
       />
 
-      {/* Login */}
+      {/* ================================= */}
+      {/* LOGIN */}
+      {/* ================================= */}
 
       <Route
         path="/login"
         element={<Login />}
       />
 
-      {/* Dashboard */}
+      {/* ================================= */}
+      {/* DASHBOARD */}
+      {/* ================================= */}
 
       <Route
         path="/dashboard"
@@ -42,7 +48,9 @@ export default function App() {
         }
       />
 
-      {/* Writer */}
+      {/* ================================= */}
+      {/* WRITER */}
+      {/* ================================= */}
 
       <Route
         path="/writer"
@@ -53,7 +61,9 @@ export default function App() {
         }
       />
 
-      {/* Product */}
+      {/* ================================= */}
+      {/* PRODUCT */}
+      {/* ================================= */}
 
       <Route
         path="/product"
@@ -64,7 +74,9 @@ export default function App() {
         }
       />
 
-      {/* Marketing */}
+      {/* ================================= */}
+      {/* MARKETING */}
+      {/* ================================= */}
 
       <Route
         path="/marketing"
@@ -75,7 +87,9 @@ export default function App() {
         }
       />
 
-      {/* Content */}
+      {/* ================================= */}
+      {/* CONTENT */}
+      {/* ================================= */}
 
       <Route
         path="/content"
@@ -86,7 +100,9 @@ export default function App() {
         }
       />
 
-      {/* History */}
+      {/* ================================= */}
+      {/* HISTORY */}
+      {/* ================================= */}
 
       <Route
         path="/history"
@@ -97,7 +113,22 @@ export default function App() {
         }
       />
 
-      {/* Pricing */}
+      {/* ================================= */}
+      {/* SETTINGS */}
+      {/* ================================= */}
+
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ================================= */}
+      {/* PRICING */}
+      {/* ================================= */}
 
       <Route
         path="/pricing"
@@ -108,11 +139,14 @@ export default function App() {
         }
       />
 
+      {/* ================================= */}
+      {/* FALLBACK */}
+      {/* ================================= */}
+
       <Route
         path="*"
         element={<Navigate to="/" replace />}
       />
-
     </Routes>
   );
 }

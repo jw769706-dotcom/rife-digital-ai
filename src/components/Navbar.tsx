@@ -1,16 +1,42 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
 
     window.addEventListener("scroll", onScroll);
 
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const scrollToSection = (id: string) => {
+    // Kalau sedang bukan di landing page,
+    // kembali ke landing page lalu menuju section.
+    if (location.pathname !== "/") {
+      window.location.href = `/#${id}`;
+      return;
+    }
+
+    const element = document.getElementById(id);
+
+    if (element) {
+      const navbarOffset = 90;
+
+      const elementPosition =
+        element.getBoundingClientRect().top + window.scrollY;
+
+      window.scrollTo({
+        top: elementPosition - navbarOffset,
+        behavior: "smooth",
+      });
+    }
+  };
 
   return (
     <header
@@ -25,6 +51,7 @@ export default function Navbar() {
             : "border-transparent bg-transparent"
         }`}
       >
+        {/* LOGO */}
         <Link
           to="/"
           className="flex h-16 items-center gap-3 font-black text-white"
@@ -44,31 +71,35 @@ export default function Navbar() {
           </div>
         </Link>
 
+        {/* NAVIGATION */}
         <nav className="hidden items-center gap-8 md:flex">
-          <a
-            href="#features"
-            className="text-sm font-medium text-gray-300 hover:text-white"
+          <button
+            type="button"
+            onClick={() => scrollToSection("features")}
+            className="text-sm font-medium text-gray-300 transition hover:text-yellow-400"
           >
             Features
-          </a>
+          </button>
 
-          <a
-            href="#pricing"
-            className="text-sm font-medium text-gray-300 hover:text-white"
+          <button
+            type="button"
+            onClick={() => scrollToSection("pricing")}
+            className="text-sm font-medium text-gray-300 transition hover:text-yellow-400"
           >
             Pricing
-          </a>
+          </button>
 
-          <a
-            href="#faq"
-            className="text-sm font-medium text-gray-300 hover:text-white"
+          <button
+            type="button"
+            onClick={() => scrollToSection("faq")}
+            className="text-sm font-medium text-gray-300 transition hover:text-yellow-400"
           >
             FAQ
-          </a>
+          </button>
         </nav>
 
+        {/* ACTION */}
         <div className="flex items-center gap-3">
-
           <Link
             to="/login"
             className="hidden rounded-xl border border-white/10 px-5 py-2.5 font-medium text-white transition hover:border-yellow-400 hover:bg-white/5 md:block"
@@ -82,7 +113,6 @@ export default function Navbar() {
           >
             Mulai Gratis
           </Link>
-
         </div>
       </div>
     </header>

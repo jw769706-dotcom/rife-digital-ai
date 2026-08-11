@@ -1,90 +1,110 @@
 import { useState } from "react";
 
-function Faq() {
-  const faqs = [
-    {
-      question: "Apakah saya harus bisa coding?",
-      answer:
-        "Tidak. Rife Digital AI dirancang khusus untuk pemula. Kamu cukup menjelaskan kebutuhanmu, lalu AI akan membantumu membuat produk digital, konten promosi, dan strategi bisnis tanpa harus menguasai coding.",
-    },
-    {
-      question: "Apakah saya harus punya pengalaman bisnis digital?",
-      answer:
-        "Tidak perlu. Platform ini dibuat untuk siapa saja, termasuk yang baru ingin memulai bisnis digital dari nol.",
-    },
-    {
-      question: "Apakah saya bisa menghasilkan uang menggunakan Rife Digital AI?",
-      answer:
-        "Bisa. Rife Digital AI membantu menemukan ide produk digital, membuat copywriting, konten promosi, dan strategi pemasaran. Hasil yang diperoleh tetap bergantung pada konsistensi dan usaha masing-masing pengguna.",
-    },
-    {
-      question: "Apakah bisa digunakan di HP?",
-      answer:
-        "Bisa. Rife Digital AI dapat diakses melalui browser di smartphone, tablet, maupun laptop tanpa perlu menginstal aplikasi.",
-    },
-    {
-      question: "Bagaimana jika saya ingin upgrade paket?",
-      answer:
-        "Kamu bisa upgrade kapan saja dari Starter ke Growth atau Elite tanpa kehilangan data maupun riwayat penggunaan akun.",
-    },
-    {
-      question: "Bagaimana jika saya mengalami kendala?",
-      answer:
-        "Tim support siap membantu setiap pengguna. Paket Growth dan Elite juga mendapatkan layanan prioritas agar setiap kendala dapat ditangani lebih cepat.",
-    },
-  ];
+const faqs = [
+  {
+    question: "Saya belum pernah pakai AI, apakah bisa?",
+    answer:
+      "Bisa banget. Rife Digital AI memang dibuat untuk pemula. Kamu tidak perlu mengerti coding atau istilah AI yang rumit. Cukup tuliskan apa yang ingin kamu buat, lalu AI akan membantu langkah demi langkah.",
+  },
+  {
+    question: "Apakah saya harus jago desain atau coding?",
+    answer:
+      "Tidak perlu. Rife Digital AI membantu kamu membuat ide produk, konten, caption, copywriting, dan kebutuhan bisnis digital lainnya tanpa harus jago coding atau desain.",
+  },
+  {
+    question: "Apakah hasil AI boleh dijual?",
+    answer:
+      "Bisa digunakan sebagai bahan untuk produk dan konten kamu. Namun, tetap pastikan hasil akhirnya kamu periksa, sesuaikan, dan gunakan sesuai aturan platform atau layanan yang kamu gunakan.",
+  },
+  {
+    question: "Apa saja yang bisa saya buat?",
+    answer:
+      "Kamu bisa membuat ide produk digital, caption, copywriting, script Reels, strategi marketing, landing page, dan berbagai kebutuhan bisnis digital lainnya.",
+  },
+  {
+    question: "Apakah bisa digunakan lewat HP?",
+    answer:
+      "Bisa. Rife Digital AI dirancang sebagai platform berbasis web sehingga dapat digunakan melalui browser di HP maupun komputer.",
+  },
+  {
+    question: "Bagaimana kalau saya masih bingung?",
+    answer:
+      "Tenang. Kamu tidak harus langsung mengerti semuanya. Mulai dari satu kebutuhan terlebih dahulu. Rife Digital AI akan membantu memberikan arahan supaya kamu tahu langkah berikutnya.",
+  },
+];
 
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+export default function Faq() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-24 bg-[#0B0B0B]">
+    <section
+      id="faq"
+      className="bg-[#090909] py-24"
+    >
       <div className="mx-auto max-w-4xl px-6">
+        {/* HEADER */}
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-white">
-            Pertanyaan yang
-            <span className="text-yellow-500"> Sering Ditanyakan</span>
+          <p className="font-bold uppercase tracking-[5px] text-yellow-400">
+            PERTANYAAN YANG SERING DITANYAKAN
+          </p>
+
+          <h2 className="mt-5 text-4xl font-black text-white md:text-5xl">
+            Masih Bingung?{" "}
+            <span className="text-yellow-400">Tenang, Kami Bantu.</span>
           </h2>
 
-          <p className="mt-4 text-gray-400">
-            Masih ada yang ingin ditanyakan? Berikut beberapa pertanyaan yang
-            paling sering diajukan oleh calon pengguna Rife Digital AI.
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-gray-400">
+            Pertanyaan yang paling sering ditanyakan oleh orang yang baru
+            mulai membangun bisnis digital dengan AI.
           </p>
         </div>
 
-        <div className="mt-12 space-y-4">
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden"
-            >
-              <button
-                onClick={() => toggleFAQ(index)}
-                className="flex w-full items-center justify-between px-6 py-5 text-left"
+        {/* FAQ */}
+        <div className="mt-12 space-y-3">
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+
+            return (
+              <div
+                key={faq.question}
+                className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
+                  isOpen
+                    ? "border-yellow-400/40 bg-[#15130b]"
+                    : "border-white/10 bg-[#111111] hover:border-yellow-400/20"
+                }`}
               >
-                <span className="text-lg font-semibold text-white">
-                  {faq.question}
-                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenIndex(isOpen ? null : index)
+                  }
+                  className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left"
+                >
+                  <span className="font-bold text-white">
+                    {faq.question}
+                  </span>
 
-                <span className="text-2xl text-yellow-500">
-                  {openIndex === index ? "−" : "+"}
-                </span>
-              </button>
+                  <span
+                    className={`shrink-0 text-xl font-bold text-yellow-400 transition-transform duration-300 ${
+                      isOpen ? "rotate-45" : ""
+                    }`}
+                  >
+                    +
+                  </span>
+                </button>
 
-              {openIndex === index && (
-                <div className="border-t border-white/10 px-6 py-5 text-gray-400 leading-7">
-                  {faq.answer}
-                </div>
-              )}
-            </div>
-          ))}
+                {isOpen && (
+                  <div className="border-t border-white/5 px-6 pb-6 pt-4">
+                    <p className="leading-7 text-gray-400">
+                      {faq.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 }
-
-export default Faq;
