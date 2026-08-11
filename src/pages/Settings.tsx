@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -11,9 +11,12 @@ import {
 } from "lucide-react";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
+import { getPlan, type Plan } from "../lib/subscriptions";
 
 export default function Settings() {
   const navigate = useNavigate();
+
+  const [plan, setPlan] = useState<Plan>("FREE");
 
   const [name, setName] = useState("Rifqi Putra");
   const [email, setEmail] = useState("rifqiparfume@gmail.com");
@@ -23,6 +26,23 @@ export default function Settings() {
     tips: true,
     updates: false,
   });
+
+  useEffect(() => {
+    async function loadPlan() {
+      try {
+        const currentPlan = await getPlan();
+
+        console.log("CURRENT PLAN:", currentPlan);
+
+        setPlan(currentPlan);
+      } catch (error) {
+        console.error("Gagal mengambil paket:", error);
+        setPlan("FREE");
+      }
+    }
+
+    loadPlan();
+  }, []);
 
   function handleSaveProfile() {
     alert("Perubahan profil berhasil disimpan.");
@@ -37,6 +57,18 @@ export default function Settings() {
     localStorage.removeItem("rife-user");
 
     navigate("/login");
+  }
+
+  function getPlanName() {
+    if (plan === "PRO") return "Pro";
+    if (plan === "BASIC") return "Basic";
+    return "Free";
+  }
+
+  function getPlanPrice() {
+    if (plan === "PRO") return "Rp99.000";
+    if (plan === "BASIC") return "Rp49.000";
+    return "Rp0";
   }
 
   return (
@@ -248,11 +280,11 @@ export default function Settings() {
               </p>
 
               <h3 className="mt-2 text-2xl font-black text-white">
-                Basic
+                {getPlanName()}
               </h3>
 
               <p className="mt-1 text-sm text-gray-400">
-                Rp49.000 / bulan
+                {getPlanPrice()} / bulan
               </p>
 
             </div>
@@ -274,12 +306,25 @@ export default function Settings() {
 
             {/* BASIC */}
 
-            <div className="rounded-2xl border border-yellow-400/30 bg-[#17140a] p-5">
+            <div
+              className={`rounded-2xl p-5 ${
+                plan === "BASIC"
+                  ? "border border-yellow-400/30 bg-[#17140a]"
+                  : "border border-white/10 bg-[#171717]"
+              }`}
+            >
 
               <div className="flex items-center justify-between">
 
                 <div>
-                  <p className="text-xs font-bold text-yellow-400">
+
+                  <p
+                    className={`text-xs font-bold ${
+                      plan === "BASIC"
+                        ? "text-yellow-400"
+                        : "text-gray-400"
+                    }`}
+                  >
                     BASIC
                   </p>
 
@@ -290,11 +335,14 @@ export default function Settings() {
                   <p className="text-xs text-gray-500">
                     / bulan
                   </p>
+
                 </div>
 
-                <span className="rounded-full bg-yellow-400 px-3 py-1 text-[10px] font-black text-black">
-                  POPULER
-                </span>
+                {plan === "BASIC" && (
+                  <span className="rounded-full bg-yellow-400 px-3 py-1 text-[10px] font-black text-black">
+                    PAKET SAAT INI
+                  </span>
+                )}
 
               </div>
 
@@ -315,12 +363,25 @@ export default function Settings() {
 
             {/* PRO */}
 
-            <div className="rounded-2xl border border-white/10 bg-[#171717] p-5">
+            <div
+              className={`rounded-2xl p-5 ${
+                plan === "PRO"
+                  ? "border border-yellow-400/30 bg-[#17140a]"
+                  : "border border-white/10 bg-[#171717]"
+              }`}
+            >
 
               <div className="flex items-center justify-between">
 
                 <div>
-                  <p className="text-xs font-bold text-gray-400">
+
+                  <p
+                    className={`text-xs font-bold ${
+                      plan === "PRO"
+                        ? "text-yellow-400"
+                        : "text-gray-400"
+                    }`}
+                  >
                     PRO
                   </p>
 
@@ -331,11 +392,14 @@ export default function Settings() {
                   <p className="text-xs text-gray-500">
                     / bulan
                   </p>
+
                 </div>
 
-                <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold text-gray-300">
-                  PREMIUM
-                </span>
+                {plan === "PRO" && (
+                  <span className="rounded-full bg-yellow-400 px-3 py-1 text-[10px] font-black text-black">
+                    PAKET SAAT INI
+                  </span>
+                )}
 
               </div>
 
