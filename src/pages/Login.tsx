@@ -22,20 +22,27 @@ export default function Login() {
     try {
       if (isLogin) {
         await signIn(email, password);
-        navigate("/writer");
+
+        // Setelah login berhasil, masuk ke Dashboard
+        navigate("/dashboard");
       } else {
         await signUp(email, password);
-        alert("Registrasi berhasil. Silakan cek email untuk verifikasi.");
+
+        alert("Registrasi berhasil. Silakan login.");
+
+        // Setelah daftar, kembali ke mode Login
+        setIsLogin(true);
       }
     } catch (err: any) {
-      alert(err.message);
+      console.error("AUTH ERROR:", err);
+      alert(err?.message || "Terjadi kesalahan.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#090909]">
+    <div className="flex min-h-screen items-center justify-center bg-[#090909] px-4">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111111] p-10">
         <h1 className="text-center text-4xl font-black text-white">
           Rife Digital AI
@@ -65,7 +72,7 @@ export default function Login() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full rounded-2xl bg-yellow-400 py-4 font-bold text-black"
+            className="w-full rounded-2xl bg-yellow-400 py-4 font-bold text-black disabled:opacity-50"
           >
             {loading ? "Loading..." : isLogin ? "Login" : "Daftar"}
           </button>
