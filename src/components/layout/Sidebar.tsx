@@ -75,11 +75,24 @@ export default function Sidebar() {
 
   function handleNewProject() {
     newChat(welcomeMessage);
+
     window.location.reload();
   }
 
   return (
-    <aside className="flex h-screen w-[300px] flex-col border-r border-white/10 bg-[#090909]">
+    <aside
+      className="
+        hidden
+        h-screen
+        w-[300px]
+        shrink-0
+        flex-col
+        border-r
+        border-white/10
+        bg-[#090909]
+        lg:flex
+      "
+    >
       {/* LOGO */}
       <div className="border-b border-white/10 px-7 py-8">
         <h1 className="text-[38px] font-black leading-none text-white">
@@ -98,7 +111,20 @@ export default function Sidebar() {
       <div className="p-5">
         <button
           onClick={handleNewProject}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-yellow-400 py-4 font-bold text-black transition hover:bg-yellow-300"
+          className="
+            flex
+            w-full
+            items-center
+            justify-center
+            gap-2
+            rounded-2xl
+            bg-yellow-400
+            py-4
+            font-bold
+            text-black
+            transition
+            hover:bg-yellow-300
+          "
         >
           <Sparkles size={18} />
           New Project
@@ -186,7 +212,18 @@ export default function Sidebar() {
           {/* CTA */}
           <button
             onClick={() => navigate("/pricing")}
-            className="mt-5 w-full rounded-2xl bg-yellow-400 py-3 text-sm font-black text-black transition hover:bg-yellow-300"
+            className="
+              mt-5
+              w-full
+              rounded-2xl
+              bg-yellow-400
+              py-3
+              text-sm
+              font-black
+              text-black
+              transition
+              hover:bg-yellow-300
+            "
           >
             Upgrade ke Growth
           </button>
