@@ -54,7 +54,7 @@ export const plans = [
 
     name: "BASIC",
 
-    price: "Rp99.000",
+    price: "Rp49.000",
 
     monthly: "/bulan",
 
@@ -99,7 +99,7 @@ export const plans = [
 
     name: "PRO",
 
-    price: "Rp199.000",
+    price: "Rp99.000",
 
     monthly: "/bulan",
 
