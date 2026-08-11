@@ -23,19 +23,22 @@ export default function Login() {
       if (isLogin) {
         await signIn(email, password);
 
-        // Setelah login berhasil, masuk ke Dashboard
+        console.log("LOGIN BERHASIL → AKAN KE DASHBOARD");
+
         navigate("/dashboard");
       } else {
         await signUp(email, password);
 
-        alert("Registrasi berhasil. Silakan login.");
+        alert(
+          "Registrasi berhasil. Silakan login dengan akun yang sudah dibuat."
+        );
 
-        // Setelah daftar, kembali ke mode Login
         setIsLogin(true);
       }
     } catch (err: any) {
       console.error("AUTH ERROR:", err);
-      alert(err?.message || "Terjadi kesalahan.");
+
+      alert(err?.message || "Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }
@@ -58,7 +61,7 @@ export default function Login() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-[#1B1B1B] px-5 py-4 text-white outline-none"
+            className="w-full rounded-2xl border border-white/10 bg-[#1B1B1B] px-5 py-4 text-white outline-none transition focus:border-yellow-400/50"
           />
 
           <input
@@ -66,20 +69,21 @@ export default function Login() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-[#1B1B1B] px-5 py-4 text-white outline-none"
+            className="w-full rounded-2xl border border-white/10 bg-[#1B1B1B] px-5 py-4 text-white outline-none transition focus:border-yellow-400/50"
           />
 
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full rounded-2xl bg-yellow-400 py-4 font-bold text-black disabled:opacity-50"
+            className="w-full rounded-2xl bg-yellow-400 py-4 font-bold text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? "Loading..." : isLogin ? "Login" : "Daftar"}
           </button>
 
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="w-full text-sm text-yellow-400"
+            disabled={loading}
+            className="w-full text-sm text-yellow-400 transition hover:text-yellow-300 disabled:opacity-50"
           >
             {isLogin
               ? "Belum punya akun? Daftar"
