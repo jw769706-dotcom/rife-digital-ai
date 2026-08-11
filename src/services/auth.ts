@@ -6,16 +6,55 @@ export async function signIn(email: string, password: string) {
     password,
   });
 
-  if (error) throw error;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function signUp(email: string, password: string) {
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  console.log("SIGN UP: mulai");
 
-  if (error) throw error;
+  try {
+    const result = await Promise.race([
+      supabase.auth.signUp({
+        email,
+        password,
+      }),
+
+      new Promise((_, reject) =>
+        setTimeout(() => {
+          reject(
+            new Error(
+              "Koneksi ke server terlalu lama. Silakan cek koneksi internet atau konfigurasi Supabase."
+            )
+          );
+        }, 15000)
+      ),
+    ]);
+
+    const { data, error } = result as {
+      data: any;
+      error: any;
+    };
+
+    console.log("SIGN UP: response diterima");
+    console.log("SIGN UP DATA:", data);
+    console.log("SIGN UP ERROR:", error);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("SIGN UP FAILED:", error);
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new Error("Registrasi gagal. Silakan coba lagi.");
+  }
 }
 
 export async function signInWithGoogle() {
@@ -26,13 +65,17 @@ export async function signInWithGoogle() {
     },
   });
 
-  if (error) throw error;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
 
-  if (error) throw error;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function getUser() {
