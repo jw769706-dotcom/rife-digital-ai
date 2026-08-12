@@ -1,160 +1,182 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import AIWriter from "./pages/AIWriter";
-import AIProduct from "./pages/AIProduct";
-import AIMarketing from "./pages/AIMarketing";
-import AIContent from "./pages/AIContent";
-import History from "./pages/History";
 import LandingPage from "./pages/LandingPage";
-import Settings from "./pages/Settings";
 
-import Pricing from "./components/Pricing";
+const Login = lazy(() => import("./pages/Login"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AIWriter = lazy(() => import("./pages/AIWriter"));
+const AIProduct = lazy(() => import("./pages/AIProduct"));
+const AIMarketing = lazy(() => import("./pages/AIMarketing"));
+const AIContent = lazy(() => import("./pages/AIContent"));
+const History = lazy(() => import("./pages/History"));
+const Settings = lazy(() => import("./pages/Settings"));
 
-import DashboardLayout from "./components/layout/DashboardLayout";
-import ProtectedRoute from "./components/ProtectedRoute";
+const Pricing = lazy(() => import("./components/Pricing"));
+const DashboardLayout = lazy(
+  () => import("./components/layout/DashboardLayout")
+);
+
+const ProtectedRoute = lazy(
+  () => import("./components/ProtectedRoute")
+);
+
+function LoadingScreen() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#080808] text-white">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400/20 border-t-yellow-400" />
+
+        <p className="text-sm text-gray-500">
+          Memuat Rife Digital AI...
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   return (
-    <Routes>
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
 
-      {/* ================================= */}
-      {/* LANDING */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* LANDING */}
+        {/* ================================= */}
 
-      <Route
-        path="/"
-        element={<LandingPage />}
-      />
+        <Route
+          path="/"
+          element={<LandingPage />}
+        />
 
-      {/* ================================= */}
-      {/* LOGIN */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* LOGIN */}
+        {/* ================================= */}
 
-      <Route
-        path="/login"
-        element={<Login />}
-      />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-      {/* ================================= */}
-      {/* DASHBOARD */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* DASHBOARD */}
+        {/* ================================= */}
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* WRITER */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* WRITER */}
+        {/* ================================= */}
 
-      <Route
-        path="/writer"
-        element={
-          <ProtectedRoute>
-            <AIWriter />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/writer"
+          element={
+            <ProtectedRoute>
+              <AIWriter />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* PRODUCT */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* PRODUCT */}
+        {/* ================================= */}
 
-      <Route
-        path="/product"
-        element={
-          <ProtectedRoute>
-            <AIProduct />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/product"
+          element={
+            <ProtectedRoute>
+              <AIProduct />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* MARKETING */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* MARKETING */}
+        {/* ================================= */}
 
-      <Route
-        path="/marketing"
-        element={
-          <ProtectedRoute>
-            <AIMarketing />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/marketing"
+          element={
+            <ProtectedRoute>
+              <AIMarketing />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* CONTENT */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* CONTENT */}
+        {/* ================================= */}
 
-      <Route
-        path="/content"
-        element={
-          <ProtectedRoute>
-            <AIContent />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/content"
+          element={
+            <ProtectedRoute>
+              <AIContent />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* HISTORY */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* HISTORY */}
+        {/* ================================= */}
 
-      <Route
-        path="/history"
-        element={
-          <ProtectedRoute>
-            <History />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* SETTINGS */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* SETTINGS */}
+        {/* ================================= */}
 
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* PRICING / UPGRADE */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* PRICING / UPGRADE */}
+        {/* ================================= */}
 
-      <Route
-        path="/pricing"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout
-              title="Upgrade"
-              subtitle="Pilih paket yang sesuai dengan kebutuhanmu."
-            >
-              <Pricing />
-            </DashboardLayout>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/pricing"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout
+                title="Upgrade"
+                subtitle="Pilih paket yang sesuai dengan kebutuhanmu."
+              >
+                <Pricing />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ================================= */}
-      {/* FALLBACK */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* FALLBACK */}
+        {/* ================================= */}
 
-      <Route
-        path="*"
-        element={<Navigate to="/" replace />}
-      />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
 
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }

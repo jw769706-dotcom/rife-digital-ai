@@ -1,5 +1,4 @@
 import { useState } from "react";
-import jsPDF from "jspdf";
 import type { ProductAIResult } from "../../pages/AIProduct";
 import { generateText } from "../../services/ai";
 
@@ -108,8 +107,9 @@ Dibuat dengan Rife Digital AI.
     }
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     try {
+      const { default: jsPDF } = await import("jspdf");
       setExporting(true);
 
       const pdf = new jsPDF({

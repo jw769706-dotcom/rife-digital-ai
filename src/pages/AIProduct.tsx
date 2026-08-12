@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
 import SubscriptionGuard from "../components/SubscriptionGuard";
@@ -7,7 +7,10 @@ import { supabase } from "../lib/supabase";
 
 import ProductSidebar from "../components/aiproduct/ProductSidebar";
 import ProductForm from "../components/aiproduct/ProductForm";
-import ProductResult from "../components/aiproduct/ProductResult";
+
+const ProductResult = lazy(
+  () => import("../components/aiproduct/ProductResult")
+);
 
 export type ProductAIResult = {
   productName: string;
@@ -118,6 +121,7 @@ export default function AIProduct() {
                         <p className="text-xs font-black text-white sm:text-sm">
                           {title}
                         </p>
+
                         <p className="mt-0.5 truncate text-[11px] text-gray-500 sm:text-xs">
                           {description}
                         </p>
@@ -217,7 +221,21 @@ export default function AIProduct() {
 
                   <div className="min-w-0 p-5 sm:p-7 lg:p-8">
                     {result ? (
-                      <ProductResult result={result} />
+                      <Suspense
+                        fallback={
+                          <div className="flex min-h-[200px] items-center justify-center">
+                            <div className="text-center">
+                              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-yellow-400" />
+
+                              <p className="mt-4 text-sm text-gray-500">
+                                Menyiapkan hasil...
+                              </p>
+                            </div>
+                          </div>
+                        }
+                      >
+                        <ProductResult result={result} />
+                      </Suspense>
                     ) : (
                       <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b0b0b] px-5 py-10 text-center sm:px-8">
                         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400/10 text-2xl">

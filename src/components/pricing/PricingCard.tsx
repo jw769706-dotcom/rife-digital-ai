@@ -54,7 +54,7 @@ export default function PricingCard() {
     const planName = selectedPlan === "BASIC" ? "Basic" : "Pro";
 
     // HARGA RESMI RIFE DIGITAL AI
-    const price = selectedPlan === "BASIC" ? 99000 : 199000;
+    const price = selectedPlan === "BASIC" ? 49000 : 99000;
 
     const message =
       `Kak saya upgrade ${planName} di Rife Digital AI\n\n` +
@@ -336,7 +336,7 @@ export default function PricingCard() {
               <p className="mt-1 text-3xl font-black text-yellow-400 sm:text-4xl">
                 Rp
                 {(
-                  selectedPlan === "BASIC" ? 99000 : 199000
+                  selectedPlan === "BASIC" ? 49000 : 99000
                 ).toLocaleString("id-ID")}
               </p>
 
